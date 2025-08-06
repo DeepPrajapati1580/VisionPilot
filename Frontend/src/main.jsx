@@ -7,11 +7,11 @@ import "./index.css";
 import { ClerkProvider } from "@clerk/clerk-react";
 import { BrowserRouter } from "react-router-dom";
 
-const PUBLISHABLE_KEY=pk_test_Y3VkZGx5LXJpbmd0YWlsLTMxLmNsZXJrLmFjY291bnRzLmRldiQ
+const PUBLISHABLE_KEY="pk_test_Y3VkZGx5LXJpbmd0YWlsLTMxLmNsZXJrLmFjY291bnRzLmRldiQ"
 
 ReactDOM.createRoot(document.getElementById("root")).render(
   <React.StrictMode>
-    <ClerkProvider publishableKey={PUBLISHABLE_KEY}>
+    <ClerkProvider publishableKey={PUBLISHABLE_KEY}> 
       <BrowserRouter>
         <App />
       </BrowserRouter>
