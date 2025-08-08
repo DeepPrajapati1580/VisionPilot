@@ -1,39 +1,36 @@
-// server.js
-import express from 'express';
-import mongoose from 'mongoose';
-import authRoutes from './routes/auth.route.js';
-import { ClerkExpressWithAuth } from '@clerk/clerk-sdk-node';
-import dotenv from 'dotenv';
-import cors from 'cors';
-import axios from 'axios';
+import express from "express";
+import mongoose from "mongoose";
+import dotenv from "dotenv";
+import cors from "cors";
+import roadmapRoutes from "./routes/roadmap.route.js";
+import { seedRoadmaps } from "./seed/roadmap.seed.js";
 
 dotenv.config();
-
 const app = express();
-app.use(express.json());
 
+// Middleware
+app.use(express.json());
 app.use(cors({
-  origin: 'http://localhost:5173',  // frontend origin
+  origin: "http://localhost:5173", // frontend
   credentials: true
 }));
 
-// Middleware
-app.use(ClerkExpressWithAuth());
-app.use("/api", csvRoute);
-app.use('/api/auth', authRoutes);
+// Routes
+app.use("/api/roadmaps", roadmapRoutes);
 
-// Start HTTP server
-const PORT = 5000;
-const server = app.listen(PORT, () => {
-  console.log(`Server running on http://127.0.0.1:${PORT}`);
-});
-
-// MongoDB Connection
+// MongoDB Connection + Seeding
 mongoose.connect(process.env.MONGO_URI, {
   useNewUrlParser: true,
   useUnifiedTopology: true
-}).then(() => {
-  console.log('MongoDB connected');
-}).catch(err => {
-  console.error('DB connection error:', err);
+})
+.then(async () => {
+  console.log("✅ MongoDB connected");
+  await seedRoadmaps();
+})
+.catch(err => console.error("❌ DB connection error:", err));
+
+// Start server
+const PORT = process.env.PORT || 5000;
+app.listen(PORT, () => {
+  console.log(`🚀 Server running on http://localhost:${PORT}`);
 });

@@ -1,24 +1,19 @@
-// src/components/Dashboard.jsx
-import React from "react";
-import { useUser } from "@clerk/clerk-react";
-import LogoutButton from "./Logout";
+import React, { useEffect, useState } from "react";
+import api from "../api";
+import Roadmap3D from "./Roadmap3D";
 
-const Dashboard = () => {
-  const { isLoaded, user } = useUser();
+export default function Dashboard() {
+  const [roadmaps, setRoadmaps] = useState([]);
 
-  if (!isLoaded) {
-    return <div className="text-center mt-10 text-gray-600">Loading...</div>;
-  }
+  useEffect(() => {
+    api.get("/roadmaps")
+      .then((res) => setRoadmaps(res.data))
+      .catch((err) => console.error(err));
+  }, []);
 
   return (
-    <div className="p-10">
-      <h1 className="text-2xl font-semibold">Welcome, {user.fullName}!</h1>
-      <p className="text-gray-700 mt-2">Your email: {user.primaryEmailAddress.emailAddress}</p>
-        <div className="mt-5">
-            <LogoutButton />
-            </div>
+    <div style={{ height: "100vh", width: "100%" }}>
+      <Roadmap3D roadmaps={roadmaps} />
     </div>
   );
-};
-
-export default Dashboard;
+}
