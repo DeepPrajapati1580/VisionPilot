@@ -11,10 +11,10 @@ const Login = ({ isOpen, onClose, selectedRole, onBack }) => {
   const { isLoaded: isClerkLoaded } = useAuth() // To check if Clerk is loaded
 
   const roleInfo = {
-    investor: { title: "Investor", icon: "📈", color: "blue" },
-    broker: { title: "Broker", icon: "🏦", color: "green" },
-    company: { title: "Company", icon: "🏢", color: "purple" },
-  }
+  admin: { title: "Admin", icon: "👑", color: "red" },
+  editor: { title: "Editor", icon: "✏️", color: "blue" },
+  viewer: { title: "Viewer", icon: "👀", color: "gray" },
+};
 
   const currentRole = roleInfo[selectedRole] || { title: "User", icon: "👤", color: "gray" }
 

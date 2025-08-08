@@ -13,57 +13,53 @@ const RoleSelection = ({ isOpen, onClose, onRoleSelect }) => {
   const { isSignedIn, getToken } = useAuth()
 
   if (!isOpen) return null
+const roles = [
+  {
+    id: "admin",
+    title: "Admin",
+    description: "Full access to manage roadmaps, milestones, tasks, and user permissions",
+    icon: "👑",
+    iconComponent: <ShieldCheck className="h-8 w-8" />,
+    color: "red",
+    features: [
+      "Create, edit, and delete roadmaps",
+      "Manage milestones and tasks",
+      "Assign tasks to team members",
+      "Manage user roles and permissions",
+      "Approve and review milestones",
+      "View detailed analytics and reports",
+    ],
+  },
+  {
+    id: "editor",
+    title: "Editor",
+    description: "Can create and modify roadmaps, milestones, and tasks but cannot manage users",
+    icon: "✏️",
+    iconComponent: <Edit3 className="h-8 w-8" />,
+    color: "blue",
+    features: [
+      "Create and edit roadmaps",
+      "Manage milestones and tasks",
+      "Assign tasks to contributors",
+      "Comment and collaborate on milestones",
+      "Track project progress",
+    ],
+  },
+  {
+    id: "viewer",
+    title: "Viewer",
+    description: "Read-only access to view roadmaps, milestones, and progress",
+    icon: "👀",
+    iconComponent: <BookOpen className="h-8 w-8" />,
+    color: "gray",
+    features: [
+      "View roadmaps",
+      "View milestones and tasks",
+      "Read-only project access",
+    ],
+  },
+];
 
-  const roles = [
-    {
-      id: "investor",
-      title: "Investor",
-      description: "Access portfolio analytics, market predictions, and investment recommendations",
-      icon: "📈",
-      iconComponent: <Users className="h-8 w-8" />,
-      color: "blue",
-      features: [
-        "Portfolio tracking & analysis",
-        "Risk assessment tools",
-        "Market forecasts & predictions",
-        "News sentiment analysis",
-        "Investment recommendations",
-        "AI-powered insights",
-      ],
-    },
-    {
-      id: "broker",
-      title: "Broker",
-      description: "Advanced trading tools, client management, and comprehensive market analysis",
-      icon: "🏦",
-      iconComponent: <BarChart3 className="h-8 w-8" />,
-      color: "green",
-      features: [
-        "Client portfolio management",
-        "Advanced trading tools",
-        "Market research reports",
-        "Risk assessment for clients",
-        "Real-time market data",
-        "Institutional-grade analytics",
-      ],
-    },
-    {
-      id: "company",
-      title: "Company",
-      description: "Financial analysis, investor relations, and strategic market positioning insights",
-      icon: "🏢",
-      iconComponent: <Building2 className="h-8 w-8" />,
-      color: "purple",
-      features: [
-        "Financial ratio analysis",
-        "Competitor benchmarking",
-        "Investor sentiment tracking",
-        "Market positioning insights",
-        "Strategic recommendations",
-        "Performance monitoring",
-      ],
-    },
-  ]
 
   const handleRoleSelect = (roleId) => {
     setSelectedRole(roleId)

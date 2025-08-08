@@ -12,9 +12,9 @@ export default function AuthModal({ isOpen, onClose, onLogin }) {
 
   const roles = [
     {
-      id: "investor",
-      title: "Investor",
-      description: "Access investment recommendations and portfolio analysis",
+      id: "User",
+      title: "User",
+      description: "Access ",
       icon: "📈",
     },
     {

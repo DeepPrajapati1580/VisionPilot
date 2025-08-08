@@ -20,14 +20,14 @@ import {
   Star,
   ArrowLeft,
 } from "lucide-react"
-import Dashboard from "./Dashboard"
+// import Dashboard from "./Dashboard"
 import { useTheme } from "../Hooks/useTheme" // Corrected import path
 import { useAuthFlow } from "../Hooks/useAuthFlow" // Corrected import path
-import Header from "./Header"
-import Footer from "./Footer"
+// import Header from "./Header"
+// import Footer from "./Footer"
 import Login from "./Login"
 import RoleSelection from "./RoleSelection"
-import CandlestickChart from "./CandlestickChart"
+// import CandlestickChart from "./CandlestickChart"
 
 const HomePage = () => {
   const [showLogin, setShowLogin] = useState(false)
@@ -36,33 +36,9 @@ const HomePage = () => {
   const [showRoleSelection, setShowRoleSelection] = useState(false)
   const { isLoaded, isSignedIn, registrationComplete } = useAuthFlow()
   const [activeDashboardTab, setActiveDashboardTab] = useState("overview")
-  const [showStandaloneChart, setShowStandaloneChart] = useState(false)
-  const [stockData, setStockData] = useState([])
+  // const [showStandaloneChart, setShowStandaloneChart] = useState(false)
+  // const [stockData, setStockData] = useState([])
   const [isConnected, setIsConnected] = useState(false)
-
-  // WebSocket connection for real-time data (moved from Dashboard)
-  useEffect(() => {
-    const ws = new WebSocket("ws://localhost:8000/ws/stock-data")
-
-    ws.onopen = () => {
-      setIsConnected(true)
-      console.log("WebSocket connected")
-    }
-
-    ws.onmessage = (event) => {
-      const data = JSON.parse(event.data)
-      setStockData((prev) => [...prev.slice(-99), data])
-    }
-
-    ws.onclose = () => {
-      setIsConnected(false)
-      console.log("WebSocket disconnected")
-    }
-
-    return () => {
-      ws.close()
-    }
-  }, [])
 
   const handleGetStarted = () => {
     setShowRoleSelection(true)
@@ -94,13 +70,13 @@ const HomePage = () => {
       handleGetStarted()
     } else {
       // If signed in and registered, navigate directly
-      if (tabKey === "charts") {
-        setShowStandaloneChart(true)
-        setActiveDashboardTab("charts") // Still set for consistency if they go back to dashboard
-      } else {
-        setShowStandaloneChart(false)
-        setActiveDashboardTab(tabKey)
-      }
+      // if (tabKey === "charts") {
+      //   setShowStandaloneChart(true)
+      //   setActiveDashboardTab("charts") // Still set for consistency if they go back to dashboard
+      // } else {
+      //   setShowStandaloneChart(false)
+      //   setActiveDashboardTab(tabKey)
+      // }
     }
   }
 

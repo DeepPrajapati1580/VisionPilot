@@ -17,7 +17,7 @@ export const useUserData = () => {
         email: user.primaryEmailAddress?.emailAddress,
         firstName: user.firstName,
         lastName: user.lastName,
-        role: selectedRole || "investor", // fallback to investor
+        role: selectedRole || "user", // fallback to user
         username: user.username,
         imageUrl: user.imageUrl,
         createdAt: user.createdAt,
