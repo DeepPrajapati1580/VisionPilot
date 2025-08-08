@@ -1,149 +1,100 @@
-"use client"
+// src/components/Login.jsx
+import React from "react";
+import { SignIn } from "@clerk/clerk-react";
+import { motion } from "framer-motion";
+import { Code, ArrowLeft } from 'lucide-react';
+import { Button } from "./UI/button";
+import { useNavigate } from "react-router-dom";
 
-import { SignIn, useAuth } from "@clerk/clerk-react"
-import { X, ArrowLeft } from "lucide-react"
-import { Button } from "./UI/button"
-import { useEffect } from "react"
-import { useAuthFlow } from "../Hooks/useAuthFlow" // Import the new hook
-
-const Login = ({ isOpen, onClose, selectedRole, onBack }) => {
-  const { isSignedIn, user, isRegistering, registerWithBackend, registrationComplete } = useAuthFlow()
-  const { isLoaded: isClerkLoaded } = useAuth() // To check if Clerk is loaded
-
-  const roleInfo = {
-  admin: { title: "Admin", icon: "👑", color: "red" },
-  editor: { title: "Editor", icon: "✏️", color: "blue" },
-  viewer: { title: "Viewer", icon: "👀", color: "gray" },
-};
-
-  const currentRole = roleInfo[selectedRole] || { title: "User", icon: "👤", color: "gray" }
-
-  // Effect to trigger backend registration after Clerk sign-in
-  useEffect(() => {
-    const handlePostSignInRegistration = async () => {
-      if (isSignedIn && user && selectedRole && !isRegistering && !registrationComplete) {
-        const result = await registerWithBackend(selectedRole)
-        if (result.success) {
-          sessionStorage.removeItem("selectedRole")  // clean up
-        }
-      }
-    }
-  
-    if (isClerkLoaded && isSignedIn) {
-      handlePostSignInRegistration()
-    }
-  }, [isSignedIn, user, selectedRole, isRegistering, registrationComplete, isClerkLoaded, registerWithBackend])
-  
-
-  if (!isOpen) return null
+export default function Login() {
+  const navigate = useNavigate();
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50 p-4">
-      <div className="relative bg-white dark:bg-slate-900 rounded-xl shadow-2xl w-full max-w-md">
+    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-purple-50 dark:from-slate-900 dark:to-slate-800 flex items-center justify-center p-4">
+      <div className="w-full max-w-md">
         {/* Header */}
-        <div className="p-6 pb-4 border-b border-gray-200 dark:border-gray-700">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center space-x-3">
-              <Button
-                variant="ghost"
-                size="sm"
-                onClick={onBack}
-                className="text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200"
-                disabled={isRegistering}
-              >
-                <ArrowLeft className="w-4 h-4 mr-1" />
-                Back
-              </Button>
-            </div>
-            <button
-              className="text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200 transition-colors"
-              onClick={onClose}
-              disabled={isRegistering}
-            >
-              <X className="w-5 h-5" />
-            </button>
-          </div>
+        <motion.div
+          initial={{ opacity: 0, y: -20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.6 }}
+          className="text-center mb-8"
+        >
+          <Button
+            variant="ghost"
+            onClick={() => navigate('/')}
+            className="absolute top-4 left-4 text-gray-600 dark:text-slate-400 hover:text-blue-600 dark:hover:text-blue-400"
+          >
+            <ArrowLeft className="h-4 w-4 mr-2" />
+            Back to Home
+          </Button>
 
-          <div className="mt-4 text-center">
-            <div
-              className={`inline-flex items-center space-x-2 px-3 py-1 rounded-full bg-${currentRole.color}-100 dark:bg-${currentRole.color}-900/30 text-${currentRole.color}-800 dark:text-${currentRole.color}-200 text-sm font-medium mb-3`}
-            >
-              <span>{currentRole.icon}</span>
-              <span>Signing in as {currentRole.title}</span>
+          <div className="flex items-center justify-center space-x-2 mb-4">
+            <div className="w-12 h-12 bg-gradient-to-r from-blue-500 to-purple-600 rounded-xl flex items-center justify-center">
+              <Code className="h-7 w-7 text-white" />
             </div>
-            <h2 className="text-2xl font-bold text-gray-900 dark:text-white">Welcome to StockMarket AI</h2>
-            <p className="text-gray-600 dark:text-gray-300 text-sm mt-1">
-              Sign in to access your personalized {currentRole.title.toLowerCase()} dashboard
-            </p>
+            <h1 className="text-3xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
+              VisionPilot
+            </h1>
           </div>
-        </div>
+          <p className="text-gray-600 dark:text-slate-400">
+            Welcome back! Sign in to continue your learning journey.
+          </p>
+        </motion.div>
 
-        {/* Content */}
-        <div className="p-6">
-          {isRegistering ? (
-            // Registration loading state
-            <div className="text-center py-8">
-              <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mx-auto mb-4"></div>
-              <p className="text-sm text-gray-600 dark:text-gray-400 mb-2">Setting up your account...</p>
-              <p className="text-xs text-gray-500 dark:text-gray-500">
-                Registering as {currentRole.title} in our database
-              </p>
-            </div>
-          ) : (
-            // Clerk SignIn Component
-            <SignIn
-              appearance={{
-                elements: {
-                  rootBox: "mx-auto",
-                  card: "shadow-none border-0 bg-transparent",
-                  headerTitle: "hidden",
-                  headerSubtitle: "hidden",
-                  socialButtonsBlockButton:
-                    "w-full justify-center mb-4 py-2 px-4 border border-gray-300 dark:border-gray-600 rounded-lg hover:bg-gray-50 dark:hover:bg-slate-800 transition-colors",
-                  formButtonPrimary: `w-full bg-${currentRole.color}-600 hover:bg-${currentRole.color}-700 text-white py-2 px-4 rounded-lg font-medium transition-colors`,
-                  footerActionLink: `text-${currentRole.color}-600 hover:text-${currentRole.color}-700`,
-                  formFieldInput:
-                    "w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent dark:bg-slate-800 dark:text-white",
-                  formFieldLabel: "block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1",
-                  dividerLine: "bg-gray-300 dark:bg-gray-600",
-                  dividerText: "text-gray-500 dark:text-gray-400 text-sm",
-                },
-                variables: {
-                  colorPrimary:
-                    currentRole.color === "blue"
-                      ? "#2563eb"
-                      : currentRole.color === "green"
-                        ? "#16a34a"
-                        : currentRole.color === "purple"
-                          ? "#9333ea"
-                          : "#6b7280",
-                },
-              }}
-              // Clerk will redirect to /dashboard after successful sign-in/sign-up
-              // The useEffect above will then handle the backend registration
-              redirectUrl="/"
-            />
-          )}
-        </div>
+        {/* Sign In Component */}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.6, delay: 0.2 }}
+          className="bg-white dark:bg-slate-800 rounded-2xl shadow-xl p-8 border border-gray-200 dark:border-slate-700"
+        >
+          <SignIn 
+            path="/login" 
+            routing="path"
+            signUpUrl="/register"
+            redirectUrl="/dashboard"
+            appearance={{
+              elements: {
+                formButtonPrimary: 
+                  "bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700 text-sm normal-case",
+                card: "shadow-none",
+                headerTitle: "text-gray-900 dark:text-white",
+                headerSubtitle: "text-gray-600 dark:text-slate-400",
+                socialButtonsBlockButton: 
+                  "border-gray-200 dark:border-slate-600 text-gray-700 dark:text-slate-300 hover:bg-gray-50 dark:hover:bg-slate-700",
+                formFieldLabel: "text-gray-700 dark:text-slate-300",
+                formFieldInput: 
+                  "border-gray-200 dark:border-slate-600 bg-white dark:bg-slate-700 text-gray-900 dark:text-white",
+                footerActionLink: "text-blue-600 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300",
+                dividerLine: "bg-gray-200 dark:bg-slate-600",
+                dividerText: "text-gray-500 dark:text-slate-400"
+              },
+              layout: {
+                socialButtonsPlacement: "top",
+                showOptionalFields: false
+              }
+            }}
+          />
+        </motion.div>
 
         {/* Footer */}
-        {!isRegistering && (
-          <div className="px-6 pb-6">
-            <div className="text-center text-xs text-gray-500 dark:text-gray-400">
-              By signing in, you agree to our{" "}
-              <a href="#" className={`text-${currentRole.color}-600 hover:text-${currentRole.color}-700 underline`}>
-                Terms of Service
-              </a>{" "}
-              and{" "}
-              <a href="#" className={`text-${currentRole.color}-600 hover:text-${currentRole.color}-700 underline`}>
-                Privacy Policy
-              </a>
-            </div>
-          </div>
-        )}
+        <motion.div
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ duration: 0.6, delay: 0.4 }}
+          className="text-center mt-8"
+        >
+          <p className="text-sm text-gray-500 dark:text-slate-500">
+            Don't have an account?{" "}
+            <button
+              onClick={() => navigate('/register')}
+              className="text-blue-600 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300 font-medium"
+            >
+              Sign up for free
+            </button>
+          </p>
+        </motion.div>
       </div>
     </div>
-  )
+  );
 }
-
-export default Login

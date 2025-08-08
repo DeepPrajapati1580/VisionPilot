@@ -155,7 +155,7 @@ export default function Footer() {
         <div className="container mx-auto px-4 py-6">
           <div className="flex flex-col md:flex-row justify-between items-center space-y-4 md:space-y-0">
             <div className="flex flex-col md:flex-row items-center space-y-2 md:space-y-0 md:space-x-6 text-sm text-gray-400">
-              <p>&copy; 2024 RoadmapPro. All rights reserved.</p>
+              <p>&copy; 2025 RoadmapPro. All rights reserved.</p>
               <div className="flex space-x-4">
                 <a href="#privacy" className="hover:text-white transition-colors">
                   Privacy

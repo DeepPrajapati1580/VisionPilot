@@ -1,331 +1,190 @@
-"use client"
+// src/components/RoleSelection.jsx
+import React, { useState } from "react";
+import { motion } from "framer-motion";
+import { User, Shield, Eye, CheckCircle, ArrowRight } from 'lucide-react';
+import { Button } from "./UI/button";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "./UI/card";
+import { Badge } from "./UI/badge";
 
-import { useState } from "react"
-import { SignIn, useAuth } from "@clerk/clerk-react"
-import { Button } from "./UI/button"
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "./UI/card"
-import { Users, Building2, BarChart3, ArrowLeft, CheckCircle, X } from "lucide-react"
-
-const RoleSelection = ({ isOpen, onClose, onRoleSelect }) => {
-  const [selectedRole, setSelectedRole] = useState("")
-  const [showLogin, setShowLogin] = useState(false)
-  const [isRegistering, setIsRegistering] = useState(false)
-  const { isSignedIn, getToken } = useAuth()
-
-  if (!isOpen) return null
 const roles = [
   {
     id: "admin",
-    title: "Admin",
-    description: "Full access to manage roadmaps, milestones, tasks, and user permissions",
-    icon: "👑",
-    iconComponent: <ShieldCheck className="h-8 w-8" />,
-    color: "red",
-    features: [
-      "Create, edit, and delete roadmaps",
-      "Manage milestones and tasks",
-      "Assign tasks to team members",
-      "Manage user roles and permissions",
-      "Approve and review milestones",
-      "View detailed analytics and reports",
-    ],
+    title: "Administrator",
+    description: "Full access to all features, user management, and system configuration",
+    icon: <Shield className="h-8 w-8" />,
+    color: "from-red-500 to-red-600",
+    permissions: [
+      "Create and manage roadmaps",
+      "User management and roles",
+      "System configuration",
+      "Analytics and reporting",
+      "Content moderation"
+    ]
   },
   {
     id: "editor",
-    title: "Editor",
-    description: "Can create and modify roadmaps, milestones, and tasks but cannot manage users",
-    icon: "✏️",
-    iconComponent: <Edit3 className="h-8 w-8" />,
-    color: "blue",
-    features: [
+    title: "Content Editor",
+    description: "Create, edit, and manage roadmaps and educational content",
+    icon: <User className="h-8 w-8" />,
+    color: "from-blue-500 to-blue-600",
+    permissions: [
       "Create and edit roadmaps",
-      "Manage milestones and tasks",
-      "Assign tasks to contributors",
-      "Comment and collaborate on milestones",
-      "Track project progress",
-    ],
+      "Manage learning content",
+      "Community interaction",
+      "Progress tracking",
+      "Content collaboration"
+    ]
   },
   {
     id: "viewer",
-    title: "Viewer",
-    description: "Read-only access to view roadmaps, milestones, and progress",
-    icon: "👀",
-    iconComponent: <BookOpen className="h-8 w-8" />,
-    color: "gray",
-    features: [
-      "View roadmaps",
-      "View milestones and tasks",
-      "Read-only project access",
-    ],
-  },
+    title: "Learner",
+    description: "Access learning content, track progress, and participate in community",
+    icon: <Eye className="h-8 w-8" />,
+    color: "from-green-500 to-green-600",
+    permissions: [
+      "Access all roadmaps",
+      "Track learning progress",
+      "Community participation",
+      "Personal dashboard",
+      "Achievement system"
+    ]
+  }
 ];
 
+export default function RoleSelection({ onRoleSelect, loading = false, error = null }) {
+  const [selectedRole, setSelectedRole] = useState(null);
 
   const handleRoleSelect = (roleId) => {
-    setSelectedRole(roleId)
-    setShowLogin(true)
-    localStorage.setItem("selectedRole", roleId)
-  }
+    setSelectedRole(roleId);
+  };
 
-  const handleBackToRoles = () => {
-    setShowLogin(false)
-    setSelectedRole("")
-  }
-
-  // Register user with backend after Clerk authentication
-  const registerUserWithBackend = async (role) => {
-    try {
-      setIsRegistering(true)
-      const token = await getToken()
-
-      const response = await fetch("http://127.0.0.1:5000/api/auth/register", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
-        },
-        body: JSON.stringify({ role }),
-      })
-
-      const data = await response.json()
-
-      if (response.ok) {
-        console.log("User registered successfully:", data)
-        // Clear localStorage and close modal
-        localStorage.removeItem("selectedRole")
-        onClose()
-        // Redirect to dashboard or trigger success callback
-        if (onRoleSelect) {
-          onRoleSelect(role)
-        }
-      } else {
-        console.error("Registration failed:", data.error)
-        // Handle registration error (user might already exist)
-        if (response.status === 409) {
-          // User already exists, just proceed
-          localStorage.removeItem("selectedRole")
-          onClose()
-          if (onRoleSelect) {
-            onRoleSelect(role)
-          }
-        }
-      }
-    } catch (error) {
-      console.error("Registration error:", error)
-    } finally {
-      setIsRegistering(false)
+  const handleConfirm = () => {
+    if (selectedRole && onRoleSelect) {
+      onRoleSelect(selectedRole);
     }
-  }
+  };
 
-  // Handle successful Clerk authentication
-  const handleClerkSuccess = () => {
-    const storedRole = localStorage.getItem("selectedRole") || selectedRole
-    if (storedRole && isSignedIn) {
-      registerUserWithBackend(storedRole)
-    }
-  }
-
-  const selectedRoleData = roles.find((role) => role.id === selectedRole)
-
-  // If showing login, render the login view
-  if (showLogin && selectedRoleData) {
-    return (
-      <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50 p-4">
-        <div className="bg-white dark:bg-slate-900 rounded-xl shadow-2xl w-full max-w-md">
-          {/* Header */}
-          <div className="p-6 pb-4 border-b border-gray-200 dark:border-gray-700">
-            <div className="flex items-center justify-between">
-              <div className="flex items-center space-x-3">
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  onClick={handleBackToRoles}
-                  className="text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200"
-                  disabled={isRegistering}
-                >
-                  <ArrowLeft className="w-4 h-4 mr-1" />
-                  Back
-                </Button>
-              </div>
-              <button
-                className="text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200 transition-colors"
-                onClick={onClose}
-                disabled={isRegistering}
-              >
-                <X className="w-5 h-5" />
-              </button>
-            </div>
-
-            <div className="mt-4 text-center">
-              <div
-                className={`inline-flex items-center space-x-2 px-3 py-1 rounded-full bg-${selectedRoleData.color}-100 dark:bg-${selectedRoleData.color}-900/30 text-${selectedRoleData.color}-800 dark:text-${selectedRoleData.color}-200 text-sm font-medium mb-3`}
-              >
-                <span>{selectedRoleData.icon}</span>
-                <span>Signing in as {selectedRoleData.title}</span>
-              </div>
-              <h2 className="text-2xl font-bold text-gray-900 dark:text-white">Welcome to StockMarket AI</h2>
-              <p className="text-gray-600 dark:text-gray-300 text-sm mt-1">
-                Sign in to access your personalized {selectedRoleData.title} dashboard
-              </p>
-            </div>
-          </div>
-
-          {/* Login Content */}
-          <div className="p-6">
-            {isRegistering ? (
-              <div className="text-center py-8">
-                <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mx-auto mb-4"></div>
-                <p className="text-sm text-gray-600 dark:text-gray-400">Setting up your account...</p>
-              </div>
-            ) : (
-              <SignIn
-                appearance={{
-                  elements: {
-                    rootBox: "mx-auto",
-                    card: "shadow-none border-0 bg-transparent",
-                    headerTitle: "hidden",
-                    headerSubtitle: "hidden",
-                    socialButtonsBlockButton:
-                      "w-full justify-center mb-4 py-2 px-4 border border-gray-300 dark:border-gray-600 rounded-lg hover:bg-gray-50 dark:hover:bg-slate-800 transition-colors",
-                    formButtonPrimary: `w-full bg-${selectedRoleData.color}-600 hover:bg-${selectedRoleData.color}-700 text-white py-2 px-4 rounded-lg font-medium transition-colors`,
-                    footerActionLink: `text-${selectedRoleData.color}-600 hover:text-${selectedRoleData.color}-700`,
-                    formFieldInput:
-                      "w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent dark:bg-slate-800 dark:text-white",
-                    formFieldLabel: "block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1",
-                    dividerLine: "bg-gray-300 dark:bg-gray-600",
-                    dividerText: "text-gray-500 dark:text-gray-400 text-sm",
-                  },
-                  variables: {
-                    colorPrimary:
-                      selectedRoleData.color === "blue"
-                        ? "#2563eb"
-                        : selectedRoleData.color === "green"
-                          ? "#16a34a"
-                          : selectedRoleData.color === "purple"
-                            ? "#9333ea"
-                            : "#6b7280",
-                  },
-                }}
-                
-              />
-            )}
-          </div>
-
-          {/* Footer */}
-          <div className="px-6 pb-6">
-            <div className="text-center text-xs text-gray-500 dark:text-gray-400">
-              By signing in, you agree to our{" "}
-              <a
-                href="#"
-                className={`text-${selectedRoleData.color}-600 hover:text-${selectedRoleData.color}-700 underline`}
-              >
-                Terms of Service
-              </a>{" "}
-              and{" "}
-              <a
-                href="#"
-                className={`text-${selectedRoleData.color}-600 hover:text-${selectedRoleData.color}-700 underline`}
-              >
-                Privacy Policy
-              </a>
-            </div>
-          </div>
-        </div>
-      </div>
-    )
-  }
-
-  // Default role selection view
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50 p-4">
-      <div className="bg-white dark:bg-slate-900 rounded-xl shadow-2xl w-full max-w-4xl max-h-[90vh] overflow-y-auto">
-        <div className="p-6">
-          {/* Header */}
-          <div className="flex justify-between items-center mb-6">
-            <div>
-              <h2 className="text-3xl font-bold text-gray-900 dark:text-white mb-2">Choose Your Role</h2>
-              <p className="text-gray-600 dark:text-gray-300">
-                Select your role to get a personalized experience tailored to your needs
-              </p>
-            </div>
-            <button
-              onClick={onClose}
-              className="text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200 transition-colors"
-            >
-              <X className="w-6 h-6" />
-            </button>
-          </div>
+    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-purple-50 dark:from-slate-900 dark:to-slate-800 flex items-center justify-center p-4">
+      <div className="w-full max-w-4xl">
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.6 }}
+          className="text-center mb-8"
+        >
+          <h1 className="text-4xl font-bold text-gray-900 dark:text-white mb-4">
+            Choose Your Role
+          </h1>
+          <p className="text-lg text-gray-600 dark:text-slate-400 max-w-2xl mx-auto">
+            Select the role that best describes how you'll be using VisionPilot. 
+            This helps us customize your experience and provide the right tools for your needs.
+          </p>
+        </motion.div>
 
-          {/* Role Cards */}
-          <div className="grid md:grid-cols-3 gap-6 mb-8">
-            {roles.map((role) => (
-              <Card
-                key={role.id}
-                className="cursor-pointer transition-all duration-300 hover:shadow-lg hover:bg-gray-50 dark:hover:bg-slate-800 border-gray-200 dark:border-gray-700 bg-white dark:bg-slate-900"
+        {error && (
+          <motion.div
+            initial={{ opacity: 0, scale: 0.95 }}
+            animate={{ opacity: 1, scale: 1 }}
+            className="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg p-4 mb-6 text-center"
+          >
+            <p className="text-red-600 dark:text-red-400">{error}</p>
+          </motion.div>
+        )}
+
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+          {roles.map((role, index) => (
+            <motion.div
+              key={role.id}
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.5, delay: index * 0.1 }}
+            >
+              <Card 
+                className={`cursor-pointer transition-all duration-300 hover:shadow-lg ${
+                  selectedRole === role.id 
+                    ? 'ring-2 ring-blue-500 shadow-lg scale-105' 
+                    : 'hover:scale-102'
+                } bg-white dark:bg-slate-800 border-gray-200 dark:border-slate-700`}
                 onClick={() => handleRoleSelect(role.id)}
               >
                 <CardHeader className="text-center pb-4">
-                  <div
-                    className={`w-16 h-16 bg-${role.color}-100 dark:bg-${role.color}-900 rounded-full flex items-center justify-center mx-auto mb-4 transition-transform hover:scale-110`}
-                  >
-                    <div className={`text-${role.color}-600 dark:text-${role.color}-400`}>{role.iconComponent}</div>
+                  <div className={`inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-gradient-to-r ${role.color} text-white mb-4 mx-auto`}>
+                    {role.icon}
                   </div>
-                  <div className="flex items-center justify-center space-x-2 mb-2">
-                    <CardTitle className="text-xl text-gray-900 dark:text-white">{role.title}</CardTitle>
-                    <span className="text-2xl">{role.icon}</span>
-                  </div>
-                  <CardDescription className="dark:text-gray-400 text-sm">{role.description}</CardDescription>
-                </CardHeader>
-                <CardContent className="pt-0">
-                  <ul className="space-y-2 text-sm text-gray-600 dark:text-gray-400">
-                    {role.features.slice(0, 4).map((feature, index) => (
-                      <li key={index} className="flex items-center">
-                        <CheckCircle className="h-3 w-3 text-green-500 mr-2 flex-shrink-0" />
-                        {feature}
-                      </li>
-                    ))}
-                    {role.features.length > 4 && (
-                      <li className="text-xs text-gray-500 dark:text-gray-400 italic">
-                        +{role.features.length - 4} more features...
-                      </li>
+                  <div className="flex items-center justify-center space-x-2">
+                    <CardTitle className="text-xl font-bold text-gray-900 dark:text-white">
+                      {role.title}
+                    </CardTitle>
+                    {selectedRole === role.id && (
+                      <CheckCircle className="h-5 w-5 text-blue-500" />
                     )}
-                  </ul>
-
-                  <Button
-                    className={`w-full mt-4 bg-${role.color}-600 hover:bg-${role.color}-700 dark:bg-${role.color}-500 dark:hover:bg-${role.color}-600 text-white`}
-                  >
-                    Sign in as {role.title}
-                  </Button>
+                  </div>
+                  <CardDescription className="text-gray-600 dark:text-slate-400">
+                    {role.description}
+                  </CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <div className="space-y-2">
+                    <h4 className="font-semibold text-gray-900 dark:text-white text-sm mb-3">
+                      What you can do:
+                    </h4>
+                    <ul className="space-y-2">
+                      {role.permissions.map((permission, permIndex) => (
+                        <li key={permIndex} className="flex items-start space-x-2 text-sm">
+                          <CheckCircle className="h-4 w-4 text-green-500 mt-0.5 flex-shrink-0" />
+                          <span className="text-gray-600 dark:text-slate-400">{permission}</span>
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                  
+                  {role.id === "viewer" && (
+                    <div className="mt-4 p-3 bg-green-50 dark:bg-green-900/20 rounded-lg">
+                      <Badge className="bg-green-100 text-green-800 dark:bg-green-900/40 dark:text-green-300">
+                        Most Popular
+                      </Badge>
+                      <p className="text-xs text-green-700 dark:text-green-300 mt-1">
+                        Perfect for developers starting their learning journey
+                      </p>
+                    </div>
+                  )}
                 </CardContent>
               </Card>
-            ))}
-          </div>
-
-          {/* Benefits Footer */}
-          <div className="mt-6 pt-6 border-t border-gray-200 dark:border-gray-700">
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-center">
-              <div>
-                <div className="text-2xl font-bold text-blue-600 dark:text-blue-400">6</div>
-                <div className="text-xs text-gray-600 dark:text-gray-400">AI Agents</div>
-              </div>
-              <div>
-                <div className="text-2xl font-bold text-green-600 dark:text-green-400">Real-time</div>
-                <div className="text-xs text-gray-600 dark:text-gray-400">Data</div>
-              </div>
-              <div>
-                <div className="text-2xl font-bold text-purple-600 dark:text-purple-400">24/7</div>
-                <div className="text-xs text-gray-600 dark:text-gray-400">Analysis</div>
-              </div>
-              <div>
-                <div className="text-2xl font-bold text-orange-600 dark:text-orange-400">99.9%</div>
-                <div className="text-xs text-gray-600 dark:text-gray-400">Uptime</div>
-              </div>
-            </div>
-          </div>
+            </motion.div>
+          ))}
         </div>
+
+        <motion.div
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ duration: 0.5, delay: 0.4 }}
+          className="text-center"
+        >
+          <Button
+            onClick={handleConfirm}
+            disabled={!selectedRole || loading}
+            size="lg"
+            className="bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700 disabled:opacity-50 disabled:cursor-not-allowed text-lg px-8 py-4"
+          >
+            {loading ? (
+              <div className="flex items-center space-x-2">
+                <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
+                <span>Setting up your account...</span>
+              </div>
+            ) : (
+              <div className="flex items-center space-x-2">
+                <span>Continue with {selectedRole ? roles.find(r => r.id === selectedRole)?.title : 'Selected Role'}</span>
+                <ArrowRight className="h-4 w-4" />
+              </div>
+            )}
+          </Button>
+          
+          <p className="text-sm text-gray-500 dark:text-slate-500 mt-4">
+            Don't worry, you can change your role later in your profile settings
+          </p>
+        </motion.div>
       </div>
     </div>
-  )
+  );
 }
-
-export default RoleSelection

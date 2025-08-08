@@ -1,21 +1,23 @@
 // src/App.jsx
 import { Routes, Route } from "react-router-dom";
-import Register from "./components/Register";
-import Login from "./components/Login";
+import { useUser } from "@clerk/clerk-react";
 import Dashboard from "./components/Dashboard";
-import HomePage from "./components/Home";
-// import CandlestickChart from "./components/CandlestickChart";
-// import CompanyDetails from "./components/StockInsightsPanel";
+import Home from "./components/Home";
+import About from "./components/About";
+import RoadmapView from "./components/RoadmapView";
 
 function App() {
+  const { isSignedIn } = useUser();
+
   return (
     <Routes>
-      <Route path="/" element={<HomePage />} />
-      <Route path="/register" element={<Register />} />
-      <Route path="/login" element={<Login />} />
-      <Route path="/dashboard" element={<Dashboard />} />
-      {/* <Route path="/live-chart" element={<CandlestickChart />} />
-      <Route path="/financial-details" element={<CompanyDetails />} /> */}
+      <Route path="/" element={<Home />} />
+      <Route path="/about" element={<About />} />
+      <Route path="/roadmap/:id" element={<RoadmapView />} />
+      <Route 
+        path="/dashboard" 
+        element={isSignedIn ? <Dashboard /> : <Home />} 
+      />
     </Routes>
   );
 }

@@ -1,98 +1,90 @@
-"use client"
-
-import { useAuth, useUser } from "@clerk/clerk-react"
-import { useState, useEffect } from "react"
+// src/hooks/useAuthWithBackend.js
+import { useState, useEffect } from "react";
+import { useUser } from "@clerk/clerk-react";
+import api from "../api";
 
 export const useAuthWithBackend = () => {
-  const { isSignedIn, getToken, signOut } = useAuth()
-  const { user } = useUser()
-  const [isRegistering, setIsRegistering] = useState(false)
-  const [registrationComplete, setRegistrationComplete] = useState(false)
-  const [userRole, setUserRole] = useState(null)
-  const [backendUser, setBackendUser] = useState(null)
+  const { user, isSignedIn, isLoaded } = useUser();
+  const [backendUser, setBackendUser] = useState(null);
+  const [isRegistered, setIsRegistered] = useState(false);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
 
-  // Check if user is registered in backend
   useEffect(() => {
-    const checkBackendRegistration = async () => {
-      if (isSignedIn && user && !registrationComplete) {
-        try {
-          const token = await getToken()
-          const response = await fetch("http://127.0.0.1:5000/api/auth/profile", {
-            headers: {
-              Authorization: `Bearer ${token}`,
-            },
-          })
+    const syncWithBackend = async () => {
+      if (!isLoaded) return;
+      
+      if (!isSignedIn || !user) {
+        setBackendUser(null);
+        setIsRegistered(false);
+        setLoading(false);
+        return;
+      }
 
-          if (response.ok) {
-            const userData = await response.json()
-            setBackendUser(userData)
-            setUserRole(userData.role)
-            setRegistrationComplete(true)
-          } else if (response.status === 404) {
-            // User not found in backend, needs registration
-            setRegistrationComplete(false)
-          }
-        } catch (error) {
-          console.error("Error checking backend registration:", error)
+      try {
+        setLoading(true);
+        const response = await api.get("/auth/profile");
+        setBackendUser(response.data);
+        setIsRegistered(true);
+        setError(null);
+      } catch (err) {
+        if (err.response?.status === 404) {
+          setIsRegistered(false);
+          setBackendUser(null);
+        } else {
+          setError("Failed to sync with backend");
+          console.error("Backend sync error:", err);
         }
+      } finally {
+        setLoading(false);
       }
-    }
+    };
 
-    checkBackendRegistration()
-  }, [isSignedIn, user])
+    syncWithBackend();
+  }, [isSignedIn, user, isLoaded]);
 
-  const registerWithBackend = async (role) => {
+  const registerWithBackend = async (userData) => {
     try {
-      setIsRegistering(true)
-      const token = await getToken()
-
-      const response = await fetch("http://127.0.0.1:5000/api/auth/register", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
-        },
-        body: JSON.stringify({ role }),
-      })
-
-      const data = await response.json()
-
-      if (response.ok || response.status === 409) {
-        setBackendUser(data.user || data)
-        setUserRole(role)
-        setRegistrationComplete(true)
-        return { success: true, user: data.user || data }
-      } else {
-        return { success: false, error: data.error }
-      }
-    } catch (error) {
-      console.error("Registration error:", error)
-      return { success: false, error: error.message }
+      setLoading(true);
+      const response = await api.post("/auth/register", userData);
+      setBackendUser(response.data.user);
+      setIsRegistered(true);
+      setError(null);
+      return response.data;
+    } catch (err) {
+      const errorMessage = err.response?.data?.error || "Registration failed";
+      setError(errorMessage);
+      throw new Error(errorMessage);
     } finally {
-      setIsRegistering(false)
+      setLoading(false);
     }
-  }
+  };
 
-  const logout = async () => {
-    await signOut()
-    setRegistrationComplete(false)
-    setUserRole(null)
-    setBackendUser(null)
-  }
+  const updateProfile = async (updates) => {
+    try {
+      setLoading(true);
+      const response = await api.put("/auth/profile", updates);
+      setBackendUser(response.data);
+      setError(null);
+      return response.data;
+    } catch (err) {
+      const errorMessage = err.response?.data?.error || "Update failed";
+      setError(errorMessage);
+      throw new Error(errorMessage);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   return {
-    // Clerk auth state
+    user: backendUser,
+    clerkUser: user,
     isSignedIn,
-    user,
-
-    // Backend registration state
-    isRegistering,
-    registrationComplete,
-    userRole,
-    backendUser,
-
-    // Actions
+    isRegistered,
+    loading,
+    error,
     registerWithBackend,
-    logout,
-  }
-}
+    updateProfile,
+    isLoaded
+  };
+};
