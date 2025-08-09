@@ -166,29 +166,6 @@ export default function Footer() {
         </div>
       </div>
 
-      {/* Status Indicators */}
-      <div className="bg-slate-800 dark:bg-slate-900 border-t border-gray-700">
-        <div className="container mx-auto px-4 py-3">
-          <div className="flex flex-wrap items-center justify-center space-x-6 text-xs text-gray-400">
-            <div className="flex items-center space-x-2">
-              <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
-              <span>All Systems Operational</span>
-            </div>
-            <div className="flex items-center space-x-2">
-              <div className="w-2 h-2 bg-blue-500 rounded-full"></div>
-              <span>Projects Synced</span>
-            </div>
-            <div className="flex items-center space-x-2">
-              <div className="w-2 h-2 bg-purple-500 rounded-full"></div>
-              <span>Live Collaboration Active</span>
-            </div>
-            <div className="flex items-center space-x-2">
-              <div className="w-2 h-2 bg-orange-500 rounded-full"></div>
-              <span>99.9% Uptime</span>
-            </div>
-          </div>
-        </div>
-      </div>
     </footer>
   )
 }

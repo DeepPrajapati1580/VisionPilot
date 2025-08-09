@@ -6,6 +6,7 @@ import RoadmapView from "./components/RoadmapView";
 import CreateRoadmap from "./components/CreateRoadmap";
 import Login from "./components/Login";
 import Register from "./components/Register";
+import About from "./components/About";
 
 function App() {
   const { isSignedIn } = useUser();
@@ -17,10 +18,8 @@ function App() {
       <Route path="/register" element={<Register />} />
       <Route path="/roadmap/:id" element={<RoadmapView />} />
       <Route path="/create-roadmap" element={<CreateRoadmap />} />
-      <Route 
-        path="/dashboard" 
-        element={isSignedIn ? <Dashboard /> : <Home />} 
-      />
+      <Route path="/about" element={<About/>}/>
+      <Route path="/dashboard" element={isSignedIn ? <Dashboard /> : <Home />} />
     </Routes>
   );
 }

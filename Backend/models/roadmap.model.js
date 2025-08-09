@@ -12,7 +12,11 @@ const roadmapSchema = new mongoose.Schema({
   description: String,
   category: String,
   tags: [String],
-  steps: [stepSchema]
+  steps: [stepSchema],
+  // The Clerk user ID of the creator; used for authorization checks
+  createdBy: { type: String, required: true },
+  // Soft-delete flag; routes filter by isActive: true
+  isActive: { type: Boolean, default: true }
 }, { timestamps: true });
 
 export default mongoose.model("Roadmap", roadmapSchema);

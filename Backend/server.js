@@ -13,14 +13,33 @@ const app = express();
 
 // Middleware
 app.use(express.json());
-app.use(cors({
-  origin: [
-    'http://localhost:5173',
-    'http://127.0.0.1:5173',
-    'http://localhost:3000'
-  ],
-  credentials: true
-}));
+const corsOptions = {
+  origin: (origin, callback) => {
+    // Allow requests with no origin (like mobile apps or curl)
+    if (!origin) return callback(null, true);
+    const allowed = [
+      'http://localhost:5173',
+      'http://127.0.0.1:5173',
+      'http://localhost:3000',
+      'http://127.0.0.1:3000',
+    ];
+    if (allowed.includes(origin)) return callback(null, true);
+    // In development, also allow 5174 (Vite alt) and 3001
+    if (process.env.NODE_ENV !== 'production' && (/^http:\/\/localhost:(517[0-9]|3001)$/.test(origin) || /^http:\/\/127\.0\.0\.1:(517[0-9]|3001)$/.test(origin))) {
+      return callback(null, true);
+    }
+    callback(new Error('Not allowed by CORS'));
+  },
+  credentials: true,
+  methods: ['GET','POST','PUT','PATCH','DELETE','OPTIONS'],
+  allowedHeaders: ['Content-Type','Authorization'],
+  exposedHeaders: [],
+  preflightContinue: false,
+  optionsSuccessStatus: 204
+};
+
+app.use(cors(corsOptions));
+// Note: cors middleware will handle preflight; explicit app.options removed to avoid path pattern issues in Express v5
 
 // Request logging middleware (before routes)
 app.use((req, res, next) => {

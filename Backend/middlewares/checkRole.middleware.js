@@ -1,4 +1,5 @@
 import User from "../models/users.model.js";
+import { clerkClient } from "@clerk/clerk-sdk-node";
 
 export const checkRole = (allowedRoles) => {
   return async (req, res, next) => {
@@ -9,11 +10,42 @@ export const checkRole = (allowedRoles) => {
         return res.status(401).json({ error: "Authentication required" });
       }
 
-      // Get user from database
-      const user = await User.findOne({ clerkId: userId });
+      // Get or create user from database
+      let user = await User.findOne({ clerkId: userId });
       
       if (!user) {
-        return res.status(404).json({ error: "User not found in database" });
+        try {
+          if (process.env.DEV_AUTH_BYPASS === 'true') {
+            // No Clerk in dev; provision a placeholder viewer
+            user = new User({
+              clerkId: userId,
+              email: `${userId}@example.com`,
+              name: 'Dev User',
+              role: 'viewer',
+              lastLogin: Date.now(),
+            });
+            await user.save();
+          } else {
+            const clerkUser = await clerkClient.users.getUser(userId);
+            const email = clerkUser.emailAddresses[0]?.emailAddress;
+            const name = `${clerkUser.firstName || ""} ${clerkUser.lastName || ""}`.trim();
+            if (!email) {
+              return res.status(400).json({ error: "Authenticated user has no email address" });
+            }
+
+            user = new User({
+              clerkId: userId,
+              email,
+              name,
+              role: "viewer",
+              lastLogin: Date.now(),
+            });
+            await user.save();
+          }
+        } catch (e) {
+          console.error("Auto-provisioning user failed:", e);
+          return res.status(500).json({ error: "Failed to provision user" });
+        }
       }
 
       // Check if user role is allowed

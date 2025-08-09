@@ -2,12 +2,12 @@
 import express from "express";
 import Roadmap from "../models/roadmap.model.js";
 import { requireAuth } from "../middlewares/requireAuth.middleware.js";
-import { checkRole, isEditorOrAdmin, isAdmin } from "../middlewares/checkRole.middleware.js";
+import { checkRole, isEditorOrAdmin, isAdmin, isAnyRole } from "../middlewares/checkRole.middleware.js";
 
 const router = express.Router();
 
-// CREATE roadmap (editors and admins only)
-router.post("/", requireAuth, isEditorOrAdmin, async (req, res) => {
+// CREATE roadmap (any authenticated role can create)
+router.post("/", requireAuth, isAnyRole, async (req, res) => {
   try {
     console.log("📝 Creating new roadmap...");
     console.log("User ID:", req.auth.userId);
@@ -97,7 +97,7 @@ router.get("/:id", async (req, res) => {
   }
 });
 
-// UPDATE roadmap (owner, editors, or admins)
+// UPDATE roadmap (owner or admins)
 router.put("/:id", requireAuth, async (req, res) => {
   try {
     console.log(`📝 Updating roadmap with ID: ${req.params.id}`);
@@ -115,9 +115,8 @@ router.put("/:id", requireAuth, async (req, res) => {
       return res.status(404).json({ error: "User not found" });
     }
 
-    // Check permissions: owner, editor, or admin can update
+    // Check permissions: owner or admin can update
     const canUpdate = user.role === 'admin' || 
-                     user.role === 'editor' || 
                      roadmap.createdBy === req.auth.userId;
 
     if (!canUpdate) {

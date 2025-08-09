@@ -179,6 +179,14 @@ export const seedRoadmaps = async () => {
     }
   ];
 
-  await Roadmap.insertMany(data);
+  // Ensure required fields added for new schema
+  const seededCreatorId = "seed";
+  const prepared = data.map((r) => ({
+    ...r,
+    createdBy: seededCreatorId,
+    isActive: true,
+  }));
+
+  await Roadmap.insertMany(prepared);
   console.log("✅ Roadmaps seeded successfully.");
 };

@@ -24,7 +24,7 @@ export default function Header() {
               onClick={() => navigate('/')}
               className="text-slate-400 hover:text-white transition-colors"
             >
-              Start Here
+              Home
             </button>
             <button 
               onClick={() => navigate('/dashboard')}
@@ -40,8 +40,10 @@ export default function Header() {
                 Create
               </button>
             )}
-            <button className="text-slate-400 hover:text-white transition-colors">
-              AI Tutor
+            <button 
+              onClick={() => navigate('/about')}
+            className="text-slate-400 hover:text-white transition-colors">
+              About Us
             </button>
             <button className="text-slate-400 hover:text-white transition-colors">
               Teams

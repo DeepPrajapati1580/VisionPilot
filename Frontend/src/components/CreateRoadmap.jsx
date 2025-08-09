@@ -186,11 +186,6 @@ export default function CreateRoadmap() {
         const role = response.data.role;
         console.log("👤 User role:", role);
         setUserRole(role);
-        
-        // Check if user has permission to create roadmaps
-        if (role !== 'editor' && role !== 'admin') {
-          setError(`Access denied. Only Content Creators and Administrators can create roadmaps. Your current role: ${role}`);
-        }
       } catch (err) {
         console.error("❌ Error checking user role:", err);
         setError("Failed to verify your permissions. Please try refreshing the page.");
@@ -291,10 +286,7 @@ export default function CreateRoadmap() {
       return;
     }
 
-    if (userRole !== 'editor' && userRole !== 'admin') {
-      setError(`Access denied. Only Content Creators and Administrators can create roadmaps. Your current role: ${userRole}`);
-      return;
-    }
+    // Any authenticated user can create a roadmap
 
     if (!validateForm()) {
       return;
@@ -386,39 +378,7 @@ export default function CreateRoadmap() {
     );
   }
 
-  // Show access denied if user doesn't have permission
-  if (userRole && userRole !== 'editor' && userRole !== 'admin') {
-    return (
-      <div className="min-h-screen bg-slate-900 flex items-center justify-center">
-        <Card className="bg-slate-800 border-slate-700 p-8 text-center max-w-md">
-          <CardContent>
-            <AlertCircle className="h-12 w-12 text-red-400 mx-auto mb-4" />
-            <h2 className="text-xl font-semibold text-white mb-4">Access Denied</h2>
-            <p className="text-slate-400 mb-4">
-              Only Content Creators and Administrators can create roadmaps.
-            </p>
-            <div className="mb-6">
-              <Badge className="bg-slate-700 text-slate-300">
-                Your current role: {userRole}
-              </Badge>
-            </div>
-            <div className="space-y-2">
-              <Button onClick={() => navigate('/dashboard')} className="bg-blue-600 hover:bg-blue-700 w-full">
-                Go to Dashboard
-              </Button>
-              <Button 
-                onClick={() => navigate('/contact')} 
-                variant="outline" 
-                className="border-slate-600 text-slate-300 hover:bg-slate-700 hover:text-white w-full"
-              >
-                Request Role Change
-              </Button>
-            </div>
-          </CardContent>
-        </Card>
-      </div>
-    );
-  }
+  // Viewers are allowed to create; only block when not signed in (handled above)
 
   return (
     <div className="min-h-screen bg-slate-900">
@@ -649,7 +609,7 @@ export default function CreateRoadmap() {
             </Button>
             <Button
               type="submit"
-              disabled={loading || (userRole !== 'editor' && userRole !== 'admin')}
+              disabled={loading}
               className="bg-blue-600 hover:bg-blue-700 disabled:opacity-50"
             >
               {loading ? (

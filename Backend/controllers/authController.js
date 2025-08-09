@@ -84,11 +84,30 @@ export const getProfile = async (req, res) => {
     const userId = req.auth.userId;
     console.log("👤 Fetching profile for user:", userId);
     
-    const user = await User.findOne({ clerkId: userId });
+    let user = await User.findOne({ clerkId: userId });
 
     if (!user) {
-      console.log("❌ User not found in database");
-      return res.status(404).json({ error: "User not found in database" });
+      // Auto-provision a viewer profile if missing
+      try {
+        const clerkUser = await clerkClient.users.getUser(userId);
+        const email = clerkUser.emailAddresses[0]?.emailAddress;
+        const name = `${clerkUser.firstName || ""} ${clerkUser.lastName || ""}`.trim();
+        if (!email) {
+          return res.status(400).json({ error: "Authenticated user has no email address" });
+        }
+        user = new User({
+          clerkId: userId,
+          email,
+          name,
+          role: "viewer",
+          lastLogin: Date.now(),
+        });
+        await user.save();
+        console.log("✅ Auto-provisioned viewer profile");
+      } catch (e) {
+        console.error("❌ Failed to auto-provision profile:", e);
+        return res.status(500).json({ error: "Failed to create profile" });
+      }
     }
 
     console.log("✅ Profile found:", { id: user._id, role: user.role, email: user.email });
