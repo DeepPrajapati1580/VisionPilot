@@ -67,10 +67,9 @@ export default function Footer() {
   }
 
   const socialLinks = [
-    { name: "Twitter", icon: <Twitter className="h-5 w-5" />, href: "#twitter" },
-    { name: "LinkedIn", icon: <Linkedin className="h-5 w-5" />, href: "#linkedin" },
-    { name: "GitHub", icon: <Github className="h-5 w-5" />, href: "#github" },
-    { name: "Email", icon: <Mail className="h-5 w-5" />, href: "#email" },
+    { name: "LinkedIn", icon: <Linkedin className="h-5 w-5" />, href: "https://www.linkedin.com/in/deep-prajapati-92673a2b3?utm_source=share&utm_campaign=share_via&utm_content=profile&utm_medium=android_app" },
+    { name: "GitHub", icon: <Github className="h-5 w-5" />, href: "https://github.com/DeepPrajapati1580" },
+    { name: "Email", icon: <Mail className="h-5 w-5" />, href: "mailto:23ceuog126@ddu.ac.in" },
   ]
 
   return (
@@ -131,23 +130,7 @@ export default function Footer() {
           ))}
         </div>
 
-        {/* Newsletter Signup */}
-        <div className="border-t border-gray-800 mt-12 pt-8">
-          <div className="max-w-md">
-            <h4 className="font-semibold text-white mb-2">Stay Updated</h4>
-            <p className="text-gray-400 text-sm mb-4">
-              Get the latest roadmap templates, productivity tips, and platform updates straight to your inbox.
-            </p>
-            <div className="flex space-x-2">
-              <input
-                type="email"
-                placeholder="Enter your email"
-                className="flex-1 px-4 py-2 bg-slate-800 dark:bg-slate-900 border border-gray-700 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-              />
-              <Button className="bg-blue-600 hover:bg-blue-700 px-6">Subscribe</Button>
-            </div>
-          </div>
-        </div>
+       
       </div>
 
       {/* Bottom Bar */}

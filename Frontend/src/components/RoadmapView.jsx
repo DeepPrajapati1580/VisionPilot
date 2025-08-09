@@ -18,10 +18,10 @@ function RoadmapStep({ step, index, isCompleted, onToggleComplete, canEdit = fal
       initial={{ opacity: 0, x: -20 }}
       animate={{ opacity: 1, x: 0 }}
       transition={{ duration: 0.5, delay: index * 0.1 }}
-      className={`bg-white dark:bg-slate-800 rounded-lg p-6 border-l-4 transition-all duration-300 ${
+      className={`bg-slate-800 rounded-lg p-6 border-l-4 transition-all duration-300 ${
         isCompleted 
           ? 'border-green-500 shadow-lg' 
-          : 'border-gray-300 dark:border-slate-600 hover:border-blue-400'
+          : 'border-slate-600 hover:border-blue-400'
       }`}
     >
       <div className="flex items-start space-x-4">
@@ -32,7 +32,7 @@ function RoadmapStep({ step, index, isCompleted, onToggleComplete, canEdit = fal
             className={`w-8 h-8 rounded-full flex items-center justify-center text-white font-medium transition-all duration-200 ${
               isCompleted 
                 ? 'bg-green-500 hover:bg-green-600' 
-                : 'bg-gray-400 dark:bg-slate-600 hover:bg-blue-500'
+                : 'bg-slate-600 hover:bg-blue-500'
             } ${canEdit ? 'cursor-pointer' : 'cursor-default'}`}
           >
             {isCompleted ? <CheckCircle className="h-5 w-5" /> : index + 1}
@@ -42,21 +42,21 @@ function RoadmapStep({ step, index, isCompleted, onToggleComplete, canEdit = fal
         <div className="flex-1">
           <h3 className={`text-lg font-semibold mb-2 ${
             isCompleted 
-              ? 'text-green-700 dark:text-green-300' 
-              : 'text-gray-900 dark:text-white'
+              ? 'text-green-300' 
+              : 'text-white'
           }`}>
             {step.title}
           </h3>
           
           {step.description && (
-            <p className="text-gray-600 dark:text-slate-400 mb-4 leading-relaxed">
+            <p className="text-slate-400 mb-4 leading-relaxed">
               {step.description}
             </p>
           )}
           
           {step.resources && step.resources.length > 0 && (
             <div className="space-y-2">
-              <h4 className="text-sm font-medium text-gray-700 dark:text-slate-300 mb-2">
+              <h4 className="text-sm font-medium text-slate-300 mb-2">
                 Resources:
               </h4>
               <div className="flex flex-wrap gap-2">
@@ -66,7 +66,7 @@ function RoadmapStep({ step, index, isCompleted, onToggleComplete, canEdit = fal
                     href={resource}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="inline-flex items-center px-3 py-1 bg-blue-50 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400 rounded-full text-sm hover:bg-blue-100 dark:hover:bg-blue-900/50 transition-colors"
+                    className="inline-flex items-center px-3 py-1 bg-blue-900/30 text-blue-400 rounded-full text-sm hover:bg-blue-900/50 transition-colors"
                   >
                     <ExternalLink className="h-3 w-3 mr-1" />
                     Resource {resourceIndex + 1}
@@ -88,25 +88,25 @@ function ProgressStats({ roadmap, userProgress, completionPercentage }) {
       icon: <BookOpen className="h-5 w-5" />,
       label: "Total Steps",
       value: roadmap.steps?.length || 0,
-      color: "text-blue-600"
+      color: "text-blue-400"
     },
     {
       icon: <CheckCircle className="h-5 w-5" />,
       label: "Completed",
       value: userProgress?.completedSteps?.length || 0,
-      color: "text-green-600"
+      color: "text-green-400"
     },
     {
       icon: <Clock className="h-5 w-5" />,
       label: "Remaining",
       value: (roadmap.steps?.length || 0) - (userProgress?.completedSteps?.length || 0),
-      color: "text-orange-600"
+      color: "text-orange-400"
     },
     {
       icon: <TrendingUp className="h-5 w-5" />,
       label: "Progress",
       value: `${completionPercentage}%`,
-      color: "text-purple-600"
+      color: "text-purple-400"
     }
   ];
 
@@ -119,13 +119,13 @@ function ProgressStats({ roadmap, userProgress, completionPercentage }) {
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5, delay: index * 0.1 }}
         >
-          <Card className="text-center bg-white dark:bg-slate-800">
+          <Card className="text-center bg-slate-800 border-slate-700">
             <CardContent className="p-4">
-              <div className={`inline-flex items-center justify-center w-10 h-10 rounded-full bg-gray-100 dark:bg-slate-700 ${stat.color} mb-2`}>
+              <div className={`inline-flex items-center justify-center w-10 h-10 rounded-full bg-slate-700 ${stat.color} mb-2`}>
                 {stat.icon}
               </div>
-              <div className="text-2xl font-bold text-gray-900 dark:text-white">{stat.value}</div>
-              <div className="text-sm text-gray-600 dark:text-slate-400">{stat.label}</div>
+              <div className="text-2xl font-bold text-white">{stat.value}</div>
+              <div className="text-sm text-slate-400">{stat.label}</div>
             </CardContent>
           </Card>
         </motion.div>
@@ -212,35 +212,17 @@ export default function RoadmapView() {
       
     } catch (err) {
       console.error("Error updating progress:", err);
-      // You could add a toast notification here
     } finally {
       setUpdating(false);
     }
   };
 
-  const handleStartLearning = () => {
-    if (!isSignedIn) {
-      // Redirect to sign in
-      return;
-    }
-    
-    // Scroll to first incomplete step
-    const firstIncompleteIndex = roadmap.steps?.findIndex((_, index) => 
-      !userProgress?.completedSteps?.includes(index)
-    );
-    
-    if (firstIncompleteIndex !== -1) {
-      const element = document.getElementById(`step-${firstIncompleteIndex}`);
-      element?.scrollIntoView({ behavior: 'smooth', block: 'center' });
-    }
-  };
-
   if (loading) {
     return (
-      <div className="min-h-screen bg-gray-50 dark:bg-slate-900 flex items-center justify-center">
+      <div className="min-h-screen bg-slate-900 flex items-center justify-center">
         <div className="text-center">
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500 mx-auto mb-4"></div>
-          <p className="text-gray-600 dark:text-slate-400">Loading roadmap...</p>
+          <p className="text-slate-400">Loading roadmap...</p>
         </div>
       </div>
     );
@@ -248,15 +230,15 @@ export default function RoadmapView() {
 
   if (error) {
     return (
-      <div className="min-h-screen bg-gray-50 dark:bg-slate-900 flex items-center justify-center">
+      <div className="min-h-screen bg-slate-900 flex items-center justify-center">
         <div className="text-center">
           <div className="text-red-500 mb-4">
             <BookOpen className="h-12 w-12 mx-auto" />
           </div>
-          <h2 className="text-xl font-semibold text-gray-900 dark:text-white mb-2">
+          <h2 className="text-xl font-semibold text-white mb-2">
             Roadmap Not Found
           </h2>
-          <p className="text-gray-600 dark:text-slate-400 mb-4">{error}</p>
+          <p className="text-slate-400 mb-4">{error}</p>
           <Button onClick={() => navigate('/dashboard')}>
             <ArrowLeft className="h-4 w-4 mr-2" />
             Back to Dashboard
@@ -269,7 +251,7 @@ export default function RoadmapView() {
   if (!roadmap) return null;
 
   return (
-    <div className="min-h-screen bg-gray-50 dark:bg-slate-900">
+    <div className="min-h-screen bg-slate-900">
       <Header />
       
       <div className="container mx-auto px-4 py-8">
@@ -277,31 +259,31 @@ export default function RoadmapView() {
         <Button 
           variant="ghost" 
           onClick={() => navigate('/dashboard')}
-          className="mb-6 text-gray-600 dark:text-slate-400 hover:text-gray-900 dark:hover:text-white"
+          className="mb-6 text-slate-400 hover:text-white"
         >
           <ArrowLeft className="h-4 w-4 mr-2" />
           Back to Dashboard
         </Button>
 
         {/* Header Section */}
-        <div className="bg-white dark:bg-slate-800 rounded-xl shadow-sm border border-gray-200 dark:border-slate-700 p-8 mb-8">
+        <div className="bg-slate-800 rounded-xl shadow-sm border border-slate-700 p-8 mb-8">
           <div className="flex flex-col md:flex-row md:items-center md:justify-between">
             <div className="flex-1">
               <div className="flex items-center space-x-3 mb-4">
-                <Badge className="bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-300">
+                <Badge className="bg-blue-900/30 text-blue-300 border-blue-700">
                   {roadmap.category}
                 </Badge>
-                <div className="flex items-center text-gray-500 dark:text-slate-400 text-sm">
+                <div className="flex items-center text-slate-400 text-sm">
                   <Users className="h-4 w-4 mr-1" />
                   {Math.floor(Math.random() * 1000) + 100}+ learners
                 </div>
               </div>
               
-              <h1 className="text-4xl font-bold text-gray-900 dark:text-white mb-4">
+              <h1 className="text-4xl font-bold text-white mb-4">
                 {roadmap.title}
               </h1>
               
-              <p className="text-lg text-gray-600 dark:text-slate-400 leading-relaxed mb-6">
+              <p className="text-lg text-slate-400 leading-relaxed mb-6">
                 {roadmap.description}
               </p>
 
@@ -310,7 +292,7 @@ export default function RoadmapView() {
                   {roadmap.tags.map((tag, index) => (
                     <span
                       key={index}
-                      className="px-3 py-1 bg-gray-100 dark:bg-slate-700 text-gray-700 dark:text-slate-300 rounded-full text-sm"
+                      className="px-3 py-1 bg-slate-700 text-slate-300 rounded-full text-sm"
                     >
                       {tag}
                     </span>
@@ -322,22 +304,19 @@ export default function RoadmapView() {
             <div className="flex flex-col space-y-3 md:ml-8">
               {isSignedIn ? (
                 <>
-                  <Button 
-                    onClick={handleStartLearning}
-                    className="bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700"
-                  >
+                  <Button className="bg-blue-600 hover:bg-blue-700">
                     <Play className="h-4 w-4 mr-2" />
                     {userProgress ? 'Continue Learning' : 'Start Learning'}
                   </Button>
                   {userProgress && completionPercentage === 100 && (
-                    <div className="flex items-center justify-center text-green-600 dark:text-green-400">
+                    <div className="flex items-center justify-center text-green-400">
                       <Award className="h-5 w-5 mr-2" />
                       <span className="font-medium">Completed!</span>
                     </div>
                   )}
                 </>
               ) : (
-                <Button className="bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700">
+                <Button className="bg-blue-600 hover:bg-blue-700">
                   Sign In to Start Learning
                 </Button>
               )}
@@ -346,12 +325,12 @@ export default function RoadmapView() {
 
           {/* Progress Bar */}
           {isSignedIn && userProgress && (
-            <div className="mt-6 pt-6 border-t border-gray-200 dark:border-slate-700">
+            <div className="mt-6 pt-6 border-t border-slate-700">
               <div className="flex justify-between items-center mb-2">
-                <span className="text-sm font-medium text-gray-700 dark:text-slate-300">
+                <span className="text-sm font-medium text-slate-300">
                   Your Progress
                 </span>
-                <span className="text-sm font-medium text-gray-900 dark:text-white">
+                <span className="text-sm font-medium text-white">
                   {completionPercentage}%
                 </span>
               </div>
@@ -371,7 +350,7 @@ export default function RoadmapView() {
 
         {/* Learning Steps */}
         <div className="mb-8">
-          <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-6">
+          <h2 className="text-2xl font-bold text-white mb-6">
             Learning Path
           </h2>
           
@@ -392,7 +371,7 @@ export default function RoadmapView() {
 
         {/* Call to Action */}
         {!isSignedIn && (
-          <Card className="bg-gradient-to-r from-blue-500 to-purple-600 text-white">
+          <Card className="bg-gradient-to-r from-blue-600 to-purple-600 text-white border-0">
             <CardContent className="p-8 text-center">
               <h3 className="text-2xl font-bold mb-4">Ready to Start Learning?</h3>
               <p className="text-lg mb-6 opacity-90">

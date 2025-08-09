@@ -1,43 +1,57 @@
 import axios from "axios";
 
-// Use environment variable for API URL, with fallback for development
 const API_BASE_URL = import.meta.env.VITE_API_URL || "http://localhost:5000/api";
-
-console.log("🔗 API Base URL:", API_BASE_URL);
 
 const api = axios.create({
   baseURL: API_BASE_URL,
   withCredentials: true,
-  timeout: 10000, // 10 second timeout
+  timeout: 15000, // Increased timeout
+  headers: {
+    'Content-Type': 'application/json',
+  }
 });
 
 // Add auth token to requests
 api.interceptors.request.use(async (config) => {
   try {
-    const token = await window.Clerk?.session?.getToken();
-    if (token) {
-      config.headers.Authorization = `Bearer ${token}`;
+    if (typeof window !== 'undefined' && window.Clerk?.session) {
+      const token = await window.Clerk.session.getToken();
+      if (token) {
+        config.headers.Authorization = `Bearer ${token}`;
+        console.log("🔐 Auth token added to request");
+      } else {
+        console.warn("⚠️ No auth token available");
+      }
     }
   } catch (error) {
-    console.warn("Failed to get auth token:", error);
+    console.warn("❌ Failed to get auth token:", error);
   }
   
-  console.log(`🌐 API Request: ${config.method?.toUpperCase()} ${config.url}`);
+  console.log("📤 API Request:", config.method?.toUpperCase(), config.url);
   return config;
 });
 
-// Response interceptor for error handling
+// Add response interceptor for better error handling
 api.interceptors.response.use(
   (response) => {
-    console.log(`✅ API Response: ${response.status} ${response.config.url}`);
+    console.log("📥 API Response:", response.status, response.config.url);
     return response;
   },
   (error) => {
-    console.error(`❌ API Error: ${error.response?.status} ${error.config?.url}`, error.response?.data);
+    console.error("❌ API Error:", {
+      url: error.config?.url,
+      method: error.config?.method,
+      status: error.response?.status,
+      data: error.response?.data,
+      message: error.message
+    });
     
+    // Handle specific error cases
     if (error.response?.status === 401) {
-      console.warn("Unauthorized access - redirecting to login");
+      console.warn("🔒 Authentication failed - redirecting to login");
+      // Could trigger a re-authentication flow here
     }
+    
     return Promise.reject(error);
   }
 );

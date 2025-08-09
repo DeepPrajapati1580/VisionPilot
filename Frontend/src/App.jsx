@@ -1,10 +1,11 @@
-// src/App.jsx
 import { Routes, Route } from "react-router-dom";
 import { useUser } from "@clerk/clerk-react";
-import Dashboard from "./components/Dashboard";
 import Home from "./components/Home";
-import About from "./components/About";
+import Dashboard from "./components/Dashboard";
 import RoadmapView from "./components/RoadmapView";
+import CreateRoadmap from "./components/CreateRoadmap";
+import Login from "./components/Login";
+import Register from "./components/Register";
 
 function App() {
   const { isSignedIn } = useUser();
@@ -12,8 +13,10 @@ function App() {
   return (
     <Routes>
       <Route path="/" element={<Home />} />
-      <Route path="/about" element={<About />} />
+      <Route path="/login" element={<Login />} />
+      <Route path="/register" element={<Register />} />
       <Route path="/roadmap/:id" element={<RoadmapView />} />
+      <Route path="/create-roadmap" element={<CreateRoadmap />} />
       <Route 
         path="/dashboard" 
         element={isSignedIn ? <Dashboard /> : <Home />} 
