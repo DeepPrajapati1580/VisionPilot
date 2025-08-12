@@ -4,6 +4,7 @@ import Home from "./components/Home";
 import Dashboard from "./components/Dashboard";
 import RoadmapView from "./components/RoadmapView";
 import CreateRoadmap from "./components/CreateRoadmap";
+import EditRoadmap from "./components/EditRoadmap";
 import Login from "./components/Login";
 import Register from "./components/Register";
 import About from "./components/About";
@@ -18,6 +19,7 @@ function App() {
       <Route path="/register" element={<Register />} />
       <Route path="/roadmap/:id" element={<RoadmapView />} />
       <Route path="/create-roadmap" element={<CreateRoadmap />} />
+      <Route path="/edit-roadmap/:id" element={<EditRoadmap />} />
       <Route path="/about" element={<About/>}/>
       <Route path="/dashboard" element={isSignedIn ? <Dashboard /> : <Home />} />
     </Routes>

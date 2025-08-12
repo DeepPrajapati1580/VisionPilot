@@ -2,13 +2,14 @@ import React, { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { useUser } from "@clerk/clerk-react";
 import { motion } from "framer-motion";
-import { ArrowLeft, BookOpen, CheckCircle, Clock, ExternalLink, Play, Users, Star, Target, Award, Calendar, TrendingUp } from 'lucide-react';
+import { ArrowLeft, BookOpen, CheckCircle, Clock, ExternalLink, Play, Users, Star, Target, Award, Calendar, TrendingUp, Edit, Trash2, MoreVertical, Globe, Lock } from 'lucide-react';
 import { Button } from "./UI/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "./UI/card";
 import { Badge } from "./UI/badge";
 import { Progress } from "./UI/progress";
 import Header from "./Header";
 import Footer from "./Footer";
+import DeleteConfirmModal from "./DeleteConfirmModal";
 import api from "../api";
 
 // Step Component
@@ -139,12 +140,15 @@ export default function RoadmapView() {
   const { id } = useParams();
   const navigate = useNavigate();
   const { user, isSignedIn } = useUser();
-  
+
   const [roadmap, setRoadmap] = useState(null);
   const [userProgress, setUserProgress] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [updating, setUpdating] = useState(false);
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
+  const [deleting, setDeleting] = useState(false);
+  const [isCreator, setIsCreator] = useState(false);
 
   useEffect(() => {
     const fetchRoadmapData = async () => {
@@ -154,6 +158,11 @@ export default function RoadmapView() {
         // Fetch roadmap details
         const roadmapResponse = await api.get(`/roadmaps/${id}`);
         setRoadmap(roadmapResponse.data);
+        
+        // Check if user is the creator
+        if (isSignedIn && roadmapResponse.data.createdBy === user?.id) {
+          setIsCreator(true);
+        }
         
         // Fetch user progress if signed in
         if (isSignedIn) {
@@ -217,6 +226,20 @@ export default function RoadmapView() {
     }
   };
 
+  const handleDeleteRoadmap = async () => {
+    try {
+      setDeleting(true);
+      await api.delete(`/roadmaps/${id}`);
+      setShowDeleteModal(false);
+      navigate('/dashboard');
+    } catch (err) {
+      console.error("Error deleting roadmap:", err);
+      alert("Failed to delete roadmap. Please try again.");
+    } finally {
+      setDeleting(false);
+    }
+  };
+
   if (loading) {
     return (
       <div className="min-h-screen bg-slate-900 flex items-center justify-center">
@@ -274,6 +297,14 @@ export default function RoadmapView() {
                   {roadmap.category}
                 </Badge>
                 <div className="flex items-center text-slate-400 text-sm">
+                  {roadmap.visibility === 'public' ? (
+                    <Globe className="h-4 w-4 mr-1" />
+                  ) : (
+                    <Lock className="h-4 w-4 mr-1" />
+                  )}
+                  {roadmap.visibility === 'public' ? 'Public' : 'Private'}
+                </div>
+                <div className="flex items-center text-slate-400 text-sm">
                   <Users className="h-4 w-4 mr-1" />
                   {Math.floor(Math.random() * 1000) + 100}+ learners
                 </div>
@@ -319,6 +350,28 @@ export default function RoadmapView() {
                 <Button className="bg-blue-600 hover:bg-blue-700">
                   Sign In to Start Learning
                 </Button>
+              )}
+              
+              {/* Edit and Delete buttons for creator */}
+              {isCreator && (
+                <div className="flex space-x-2 pt-2 border-t border-slate-700">
+                  <Button 
+                    variant="outline" 
+                    onClick={() => navigate(`/edit-roadmap/${id}`)}
+                    className="flex-1"
+                  >
+                    <Edit className="h-4 w-4 mr-2" />
+                    Edit
+                  </Button>
+                  <Button 
+                    variant="outline" 
+                    onClick={() => setShowDeleteModal(true)}
+                    className="flex-1 text-red-400 border-red-400 hover:bg-red-900/20"
+                  >
+                    <Trash2 className="h-4 w-4 mr-2" />
+                    Delete
+                  </Button>
+                </div>
               )}
             </div>
           </div>
@@ -384,6 +437,15 @@ export default function RoadmapView() {
           </Card>
         )}
       </div>
+
+      {/* Delete Confirmation Modal */}
+      <DeleteConfirmModal
+        isOpen={showDeleteModal}
+        onClose={() => setShowDeleteModal(false)}
+        onConfirm={handleDeleteRoadmap}
+        title={roadmap?.title || "this roadmap"}
+        loading={deleting}
+      />
 
       <Footer />
     </div>
