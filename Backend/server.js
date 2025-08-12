@@ -6,7 +6,7 @@ import roadmapRoutes from "./routes/roadmap.route.js";
 import categoryRoutes from "./routes/category.route.js";
 import progressRoutes from "./routes/progress.route.js";
 import authRoutes from "./routes/auth.route.js";
-
+import { seedRoadmaps } from "./seed/roadmap.seed.js";
 
 dotenv.config();
 const app = express();
@@ -126,7 +126,7 @@ app.use((req, res) => {
   });
 });
 
-// MongoDB Connection
+// MongoDB Connection + Seeding
 const connectDB = async () => {
   try {
     console.log("🔌 Connecting to MongoDB...");
@@ -145,6 +145,14 @@ const connectDB = async () => {
     // Check if roadmaps exist
     const count = await mongoose.connection.db.collection('roadmaps').countDocuments();
     console.log(`📊 Current roadmaps in database: ${count}`);
+    
+    // Run roadmap seed
+    console.log("🌱 Starting roadmap seeding...");
+    await seedRoadmaps();
+    
+    // Check count again after seeding
+    const newCount = await mongoose.connection.db.collection('roadmaps').countDocuments();
+    console.log(`📊 Roadmaps after seeding: ${newCount}`);
     
     // Verify data structure
     const sampleRoadmap = await mongoose.connection.db.collection('roadmaps').findOne();

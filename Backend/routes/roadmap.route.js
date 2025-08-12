@@ -6,12 +6,11 @@ import { checkRole, isEditorOrAdmin, isAdmin, isAnyRole } from "../middlewares/c
 
 const router = express.Router();
 
-// CREATE roadmap (any authenticated role can create)
-router.post("/", requireAuth, isAnyRole, async (req, res) => {
+// CREATE roadmap (any authenticated user can create)
+router.post("/", requireAuth, async (req, res) => {
   try {
     console.log("📝 Creating new roadmap...");
     console.log("User ID:", req.auth.userId);
-    console.log("User Role:", req.user.role);
     console.log("Request body:", req.body);
 
     const roadmapData = {
@@ -60,13 +59,16 @@ router.post("/", requireAuth, isAnyRole, async (req, res) => {
   }
 });
 
-// GET all roadmaps (public)
+// GET all roadmaps (public only)
 router.get("/", async (req, res) => {
   try {
-    console.log("📋 Fetching all roadmaps...");
+    console.log("📋 Fetching all public roadmaps...");
     
-    const roadmaps = await Roadmap.find({ isActive: true }).sort({ createdAt: -1 });
-    console.log(`✅ Found ${roadmaps.length} roadmaps`);
+    const roadmaps = await Roadmap.find({ 
+      isActive: true, 
+      visibility: 'public' 
+    }).sort({ createdAt: -1 });
+    console.log(`✅ Found ${roadmaps.length} public roadmaps`);
     
     res.json(roadmaps);
   } catch (err) {
@@ -75,7 +77,7 @@ router.get("/", async (req, res) => {
   }
 });
 
-// GET single roadmap by ID (public)
+// GET single roadmap by ID (public or private if owner)
 router.get("/:id", async (req, res) => {
   try {
     console.log(`📋 Fetching roadmap with ID: ${req.params.id}`);
@@ -84,6 +86,12 @@ router.get("/:id", async (req, res) => {
     if (!roadmap) {
       console.log("❌ Roadmap not found");
       return res.status(404).json({ error: "Roadmap not found" });
+    }
+
+    // Check if roadmap is private and user is not the creator
+    if (roadmap.visibility === 'private' && roadmap.createdBy !== req.auth?.userId) {
+      console.log("❌ Access denied to private roadmap");
+      return res.status(403).json({ error: "Access denied. This roadmap is private." });
     }
     
     console.log(`✅ Found roadmap: ${roadmap.title}`);
@@ -97,32 +105,59 @@ router.get("/:id", async (req, res) => {
   }
 });
 
-// UPDATE roadmap (owner or admins)
+// UPDATE roadmap (owner or admins only)
 router.put("/:id", requireAuth, async (req, res) => {
   try {
     console.log(`📝 Updating roadmap with ID: ${req.params.id}`);
+    console.log("User ID:", req.auth.userId);
     
     const roadmap = await Roadmap.findById(req.params.id);
     if (!roadmap) {
       return res.status(404).json({ error: "Roadmap not found" });
     }
 
-    // Get user info
-    const User = (await import("../models/users.model.js")).default;
-    const user = await User.findOne({ clerkId: req.auth.userId });
+    // Check if user is the creator or admin
+    const isCreator = roadmap.createdBy === req.auth.userId;
     
-    if (!user) {
-      return res.status(404).json({ error: "User not found" });
+    // For admin check, we need to get user info from database
+    let isAdmin = false;
+    if (!isCreator) {
+      try {
+        const User = (await import("../models/users.model.js")).default;
+        const user = await User.findOne({ clerkId: req.auth.userId });
+        isAdmin = user && user.role === 'admin';
+      } catch (userErr) {
+        console.warn("Could not verify admin status:", userErr);
+        // If we can't verify admin status, only allow creator
+      }
     }
 
-    // Check permissions: owner or admin can update
-    const canUpdate = user.role === 'admin' || 
-                     roadmap.createdBy === req.auth.userId;
-
-    if (!canUpdate) {
+    if (!isCreator && !isAdmin) {
       return res.status(403).json({ 
         error: "Not authorized to update this roadmap",
-        message: "Only the creator, editors, or admins can update roadmaps"
+        message: "Only the creator or admins can update roadmaps"
+      });
+    }
+
+    // Validate required fields
+    if (!req.body.title || !req.body.category) {
+      return res.status(400).json({ 
+        error: "Title and category are required" 
+      });
+    }
+
+    // Validate steps
+    if (!req.body.steps || req.body.steps.length === 0) {
+      return res.status(400).json({ 
+        error: "At least one step is required" 
+      });
+    }
+
+    // Check if all steps have titles
+    const invalidSteps = req.body.steps.some(step => !step.title || !step.title.trim());
+    if (invalidSteps) {
+      return res.status(400).json({ 
+        error: "All steps must have a title" 
       });
     }
 
@@ -142,6 +177,9 @@ router.put("/:id", requireAuth, async (req, res) => {
         details: err.message 
       });
     }
+    if (err.name === 'CastError') {
+      return res.status(400).json({ error: "Invalid roadmap ID format" });
+    }
     res.status(500).json({ error: err.message });
   }
 });
@@ -150,24 +188,30 @@ router.put("/:id", requireAuth, async (req, res) => {
 router.delete("/:id", requireAuth, async (req, res) => {
   try {
     console.log(`🗑️ Deleting roadmap with ID: ${req.params.id}`);
+    console.log("User ID:", req.auth.userId);
     
     const roadmap = await Roadmap.findById(req.params.id);
     if (!roadmap) {
       return res.status(404).json({ error: "Roadmap not found" });
     }
 
-    // Get user info
-    const User = (await import("../models/users.model.js")).default;
-    const user = await User.findOne({ clerkId: req.auth.userId });
+    // Check if user is the creator or admin
+    const isCreator = roadmap.createdBy === req.auth.userId;
     
-    if (!user) {
-      return res.status(404).json({ error: "User not found" });
+    // For admin check, we need to get user info from database
+    let isAdmin = false;
+    if (!isCreator) {
+      try {
+        const User = (await import("../models/users.model.js")).default;
+        const user = await User.findOne({ clerkId: req.auth.userId });
+        isAdmin = user && user.role === 'admin';
+      } catch (userErr) {
+        console.warn("Could not verify admin status:", userErr);
+        // If we can't verify admin status, only allow creator
+      }
     }
 
-    // Check permissions: owner or admin can delete
-    const canDelete = user.role === 'admin' || roadmap.createdBy === req.auth.userId;
-
-    if (!canDelete) {
+    if (!isCreator && !isAdmin) {
       return res.status(403).json({ 
         error: "Not authorized to delete this roadmap",
         message: "Only the creator or admins can delete roadmaps"
@@ -178,14 +222,21 @@ router.delete("/:id", requireAuth, async (req, res) => {
     await Roadmap.findByIdAndUpdate(req.params.id, { isActive: false });
     
     console.log(`✅ Roadmap soft deleted: ${roadmap.title}`);
-    res.json({ message: "Roadmap deleted successfully" });
+    res.json({ 
+      message: "Roadmap deleted successfully",
+      roadmapId: req.params.id,
+      title: roadmap.title
+    });
   } catch (err) {
     console.error("❌ Error deleting roadmap:", err);
+    if (err.name === 'CastError') {
+      return res.status(400).json({ error: "Invalid roadmap ID format" });
+    }
     res.status(500).json({ error: err.message });
   }
 });
 
-// GET user's created roadmaps (protected route)
+// GET user's created roadmaps (protected route - both public and private)
 router.get("/user/created", requireAuth, async (req, res) => {
   try {
     console.log(`📋 Fetching roadmaps created by user: ${req.auth.userId}`);
@@ -203,18 +254,39 @@ router.get("/user/created", requireAuth, async (req, res) => {
   }
 });
 
-// GET roadmaps by category (public)
+// GET all roadmaps accessible to user (public + user's private)
+router.get("/user/accessible", requireAuth, async (req, res) => {
+  try {
+    console.log(`📋 Fetching accessible roadmaps for user: ${req.auth.userId}`);
+    
+    const roadmaps = await Roadmap.find({
+      $or: [
+        { visibility: 'public', isActive: true },
+        { createdBy: req.auth.userId, isActive: true }
+      ]
+    }).sort({ createdAt: -1 });
+    
+    console.log(`✅ Found ${roadmaps.length} accessible roadmaps for user`);
+    res.json(roadmaps);
+  } catch (err) {
+    console.error("❌ Error fetching accessible roadmaps:", err);
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// GET roadmaps by category (public only)
 router.get("/category/:category", async (req, res) => {
   try {
     const category = req.params.category;
-    console.log(`📋 Fetching roadmaps for category: ${category}`);
+    console.log(`📋 Fetching public roadmaps for category: ${category}`);
     
     const roadmaps = await Roadmap.find({ 
       category: { $regex: new RegExp(category, 'i') },
-      isActive: true
+      isActive: true,
+      visibility: 'public'
     }).sort({ createdAt: -1 }).lean();
     
-    console.log(`✅ Found ${roadmaps.length} roadmaps in category: ${category}`);
+    console.log(`✅ Found ${roadmaps.length} public roadmaps in category: ${category}`);
     res.status(200).json(roadmaps);
   } catch (err) {
     console.error("❌ Error fetching roadmaps by category:", err);
@@ -225,14 +297,15 @@ router.get("/category/:category", async (req, res) => {
   }
 });
 
-// GET roadmaps with search functionality (public)
+// GET roadmaps with search functionality (public only)
 router.get("/search/:query", async (req, res) => {
   try {
     const query = req.params.query;
-    console.log(`🔍 Searching roadmaps for: ${query}`);
+    console.log(`🔍 Searching public roadmaps for: ${query}`);
     
     const roadmaps = await Roadmap.find({
       isActive: true,
+      visibility: 'public',
       $or: [
         { title: { $regex: query, $options: 'i' } },
         { description: { $regex: query, $options: 'i' } },
@@ -241,7 +314,7 @@ router.get("/search/:query", async (req, res) => {
       ]
     }).sort({ createdAt: -1 }).lean();
     
-    console.log(`✅ Found ${roadmaps.length} roadmaps matching: ${query}`);
+    console.log(`✅ Found ${roadmaps.length} public roadmaps matching: ${query}`);
     res.status(200).json(roadmaps);
   } catch (err) {
     console.error("❌ Error searching roadmaps:", err);
