@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import { useUser, UserButton } from "@clerk/clerk-react";
 import { useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
-import { Plus, BookOpen, Users, Code, Database, Cloud, Cpu, Smartphone, Shield, Gamepad2, Play, TrendingUp, Edit } from 'lucide-react';
+import { Plus, BookOpen, Users, Code, Database, Cloud, Cpu, Smartphone, Shield, Gamepad2, Play, TrendingUp, Edit, Globe, Lock } from 'lucide-react';
 import { Button } from "./UI/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "./UI/card";
 import { Badge } from "./UI/badge";
@@ -45,10 +45,22 @@ function RoadmapCard({ roadmap, progress, index, isOwned = false }) {
         onClick={() => navigate(`/roadmap/${roadmap._id}`)}
       >
         {isOwned && (
-          <div className="absolute top-2 right-2">
+          <div className="absolute top-2 right-2 flex flex-col gap-1">
             <Badge className="bg-green-900/30 text-green-300 border-green-700 text-xs">
               <Edit className="h-3 w-3 mr-1" />
               Created by you
+            </Badge>
+            <Badge className={`text-xs ${
+              roadmap.visibility === 'public' 
+                ? 'bg-blue-900/30 text-blue-300 border-blue-700' 
+                : 'bg-purple-900/30 text-purple-300 border-purple-700'
+            }`}>
+              {roadmap.visibility === 'public' ? (
+                <Globe className="h-3 w-3 mr-1" />
+              ) : (
+                <Lock className="h-3 w-3 mr-1" />
+              )}
+              {roadmap.visibility === 'public' ? 'Public' : 'Private'}
             </Badge>
           </div>
         )}

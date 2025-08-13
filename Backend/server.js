@@ -7,6 +7,7 @@ import categoryRoutes from "./routes/category.route.js";
 import progressRoutes from "./routes/progress.route.js";
 import authRoutes from "./routes/auth.route.js";
 import { seedRoadmaps } from "./seed/roadmap.seed.js";
+import geminiRoutes from "./routes/gemini.js";
 
 dotenv.config();
 const app = express();
@@ -82,6 +83,7 @@ app.use("/api/categories", categoryRoutes);
 app.use("/api/progress", progressRoutes);
 app.use("/api/auth", authRoutes);
 
+app.use("/api/gemini", geminiRoutes);
 // Error handling middleware
 app.use((err, req, res, next) => {
   console.error("🚨 Server error:", err);
