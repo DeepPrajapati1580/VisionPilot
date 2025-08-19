@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
-import { useUser } from "@clerk/clerk-react";
+import { useUser, SignInButton } from "@clerk/clerk-react";
 import { motion } from "framer-motion";
 import { ArrowLeft, BookOpen, CheckCircle, Clock, ExternalLink, Play, Users, Star, Target, Award, Calendar, TrendingUp, Edit, Trash2, MoreVertical, Globe, Lock } from 'lucide-react';
 import { Button } from "./UI/button";
@@ -347,9 +347,11 @@ export default function RoadmapView() {
                   )}
                 </>
               ) : (
-                <Button className="bg-blue-600 hover:bg-blue-700">
-                  Sign In to Start Learning
-                </Button>
+                <SignInButton mode="modal" afterSignInUrl={`/roadmap/${id}`} afterSignUpUrl={`/roadmap/${id}`}>
+                  <Button className="bg-blue-600 hover:bg-blue-700">
+                    Sign In to Start Learning
+                  </Button>
+                </SignInButton>
               )}
               
               {/* Edit and Delete buttons for creator */}
@@ -430,9 +432,11 @@ export default function RoadmapView() {
               <p className="text-lg mb-6 opacity-90">
                 Sign up to track your progress and unlock all features
               </p>
-              <Button className="bg-white text-blue-600 hover:bg-gray-100">
-                Get Started Free
-              </Button>
+              <SignInButton mode="modal" afterSignInUrl={`/roadmap/${id}`} afterSignUpUrl={`/roadmap/${id}`}>
+                <Button className="bg-white text-blue-600 hover:bg-gray-100">
+                  Get Started Free
+                </Button>
+              </SignInButton>
             </CardContent>
           </Card>
         )}

@@ -8,6 +8,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "./UI/
 import { Badge } from "./UI/badge";
 import { Progress } from "./UI/progress";
 import api from "../api";
+import Header from "./Header";
 
 // Roadmap Card Component
 function RoadmapCard({ roadmap, progress, index, isOwned = false }) {
@@ -182,29 +183,7 @@ export default function Dashboard() {
 
   return (
     <div className="min-h-screen bg-slate-900 text-white">
-      {/* Header */}
-      <header className="border-b border-slate-800 bg-slate-900/50 backdrop-blur-sm">
-        <div className="container mx-auto px-4 py-4">
-          <div className="flex items-center justify-between">
-            <h1 className="text-2xl font-bold bg-gradient-to-r from-blue-400 to-purple-500 bg-clip-text text-transparent">
-              VisionPilot
-            </h1>
-            <div className="flex items-center space-x-4">
-              <Button 
-                onClick={() => navigate('/create-roadmap')}
-                className="bg-blue-600 hover:bg-blue-700"
-              >
-                <Plus className="h-4 w-4 mr-2" />
-                Create Roadmap
-              </Button>
-              <span className="text-slate-300">
-                Welcome, {user?.firstName || 'Developer'}!
-              </span>
-              <UserButton afterSignOutUrl="/" />
-            </div>
-          </div>
-        </div>
-      </header>
+      <Header />
 
       {/* Main Content */}
       <main className="container mx-auto px-4 py-8">

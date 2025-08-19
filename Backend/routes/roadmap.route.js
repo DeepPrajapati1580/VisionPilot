@@ -1,6 +1,7 @@
 // Backend/routes/roadmap.route.js
 import express from "express";
 import Roadmap from "../models/roadmap.model.js";
+import Progress from "../models/progress.model.js";
 import { requireAuth } from "../middlewares/requireAuth.middleware.js";
 import { checkRole, isEditorOrAdmin, isAdmin, isAnyRole } from "../middlewares/checkRole.middleware.js";
 
@@ -220,6 +221,13 @@ router.delete("/:id", requireAuth, async (req, res) => {
 
     // Soft delete by setting isActive to false
     await Roadmap.findByIdAndUpdate(req.params.id, { isActive: false });
+    // Also delete any progress records tied to this roadmap for all users
+    try {
+      const deleteResult = await Progress.deleteMany({ roadmap: req.params.id });
+      console.log(`🧹 Deleted ${deleteResult.deletedCount} progress records for roadmap ${req.params.id}`);
+    } catch (cleanupErr) {
+      console.warn("Warning: failed to cleanup progress records:", cleanupErr.message);
+    }
     
     console.log(`✅ Roadmap soft deleted: ${roadmap.title}`);
     res.json({ 
