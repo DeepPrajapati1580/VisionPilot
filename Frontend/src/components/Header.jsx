@@ -41,12 +41,14 @@ export default function Header() {
               </button>
             )}
             <button 
+            onClick={() => navigate('/gemini')}
+            className="text-slate-400 hover:text-white transition-colors">
+              AI Chat
+            </button>
+            <button 
               onClick={() => navigate('/about')}
             className="text-slate-400 hover:text-white transition-colors">
               About Us
-            </button>
-            <button className="text-slate-400 hover:text-white transition-colors">
-              Teams
             </button>
           </nav>
 
