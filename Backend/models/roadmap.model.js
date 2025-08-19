@@ -15,12 +15,6 @@ const roadmapSchema = new mongoose.Schema({
   steps: [stepSchema],
   // The Clerk user ID of the creator; used for authorization checks
   createdBy: { type: String, required: true },
-  // Visibility: public or private
-  visibility: { 
-    type: String, 
-    enum: ['public', 'private'], 
-    default: 'public' 
-  },
   // Soft-delete flag; routes filter by isActive: true
   isActive: { type: Boolean, default: true }
 }, { timestamps: true });

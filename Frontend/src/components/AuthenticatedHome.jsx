@@ -93,7 +93,7 @@ function RoadmapCard({ roadmap, progress, index, userRole, userId, onEdit, onDel
     ? Math.round((progress.completedSteps.length / roadmap.steps.length) * 100)
     : 0;
 
-  const canEdit = userRole === 'admin' || (userRole === 'editor' && roadmap.createdBy === userId);
+  const canEdit = userRole === 'admin' || roadmap.createdBy === userId;
   const canDelete = userRole === 'admin' || roadmap.createdBy === userId;
   const isOwned = roadmap.createdBy === userId;
 
@@ -283,14 +283,14 @@ export default function AuthenticatedHome() {
       }
     ];
 
-    if (userRole === 'editor' || userRole === 'admin') {
+    if (userRole === 'admin') {
       actions.push({
         icon: <Plus className="h-6 w-6 text-white" />,
         title: "Create Roadmap",
         description: "Share your knowledge",
         onClick: () => navigate('/create-roadmap'),
         disabled: false,
-        badge: <Badge className="bg-blue-900/30 text-blue-300 border-blue-700 text-xs">Editor</Badge>
+        badge: <Badge className="bg-red-900/30 text-red-300 border-red-700 text-xs">Admin</Badge>
       });
     }
 

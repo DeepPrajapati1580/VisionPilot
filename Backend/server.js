@@ -3,11 +3,9 @@ import mongoose from "mongoose";
 import dotenv from "dotenv";
 import cors from "cors";
 import roadmapRoutes from "./routes/roadmap.route.js";
-import categoryRoutes from "./routes/category.route.js";
 import progressRoutes from "./routes/progress.route.js";
 import authRoutes from "./routes/auth.route.js";
-import { seedRoadmaps } from "./seed/roadmap.seed.js";
-import geminiRoutes from "./routes/gemini.js";
+// Seeding removed; DB already contains initial data
 
 dotenv.config();
 const app = express();
@@ -79,11 +77,10 @@ app.get("/api/health", async (req, res) => {
 
 // API Routes - All routes are essential for functionality
 app.use("/api/roadmaps", roadmapRoutes);
-app.use("/api/categories", categoryRoutes);
+// Categories API removed: categories are simple strings on roadmaps now
 app.use("/api/progress", progressRoutes);
 app.use("/api/auth", authRoutes);
 
-app.use("/api/gemini", geminiRoutes);
 // Error handling middleware
 app.use((err, req, res, next) => {
   console.error("🚨 Server error:", err);
@@ -147,25 +144,6 @@ const connectDB = async () => {
     // Check if roadmaps exist
     const count = await mongoose.connection.db.collection('roadmaps').countDocuments();
     console.log(`📊 Current roadmaps in database: ${count}`);
-    
-    // Run roadmap seed
-    console.log("🌱 Starting roadmap seeding...");
-    await seedRoadmaps();
-    
-    // Check count again after seeding
-    const newCount = await mongoose.connection.db.collection('roadmaps').countDocuments();
-    console.log(`📊 Roadmaps after seeding: ${newCount}`);
-    
-    // Verify data structure
-    const sampleRoadmap = await mongoose.connection.db.collection('roadmaps').findOne();
-    if (sampleRoadmap) {
-      console.log("✅ Sample roadmap structure:", {
-        id: sampleRoadmap._id,
-        title: sampleRoadmap.title,
-        category: sampleRoadmap.category,
-        stepsCount: sampleRoadmap.steps?.length || 0
-      });
-    }
     
   } catch (error) {
     console.error("❌ DB connection error:", error);

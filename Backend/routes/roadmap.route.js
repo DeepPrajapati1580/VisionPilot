@@ -3,7 +3,7 @@ import express from "express";
 import Roadmap from "../models/roadmap.model.js";
 import Progress from "../models/progress.model.js";
 import { requireAuth } from "../middlewares/requireAuth.middleware.js";
-import { checkRole, isEditorOrAdmin, isAdmin, isAnyRole } from "../middlewares/checkRole.middleware.js";
+import { isAdmin } from "../middlewares/checkRole.middleware.js";
 
 const router = express.Router();
 
@@ -66,8 +66,7 @@ router.get("/", async (req, res) => {
     console.log("📋 Fetching all public roadmaps...");
     
     const roadmaps = await Roadmap.find({ 
-      isActive: true, 
-      visibility: 'public' 
+      isActive: true
     }).sort({ createdAt: -1 });
     console.log(`✅ Found ${roadmaps.length} public roadmaps`);
     
@@ -89,11 +88,7 @@ router.get("/:id", async (req, res) => {
       return res.status(404).json({ error: "Roadmap not found" });
     }
 
-    // Check if roadmap is private and user is not the creator
-    if (roadmap.visibility === 'private' && roadmap.createdBy !== req.auth?.userId) {
-      console.log("❌ Access denied to private roadmap");
-      return res.status(403).json({ error: "Access denied. This roadmap is private." });
-    }
+    // All roadmaps are public now; no visibility check
     
     console.log(`✅ Found roadmap: ${roadmap.title}`);
     res.json(roadmap);
@@ -219,8 +214,8 @@ router.delete("/:id", requireAuth, async (req, res) => {
       });
     }
 
-    // Soft delete by setting isActive to false
-    await Roadmap.findByIdAndUpdate(req.params.id, { isActive: false });
+    // Hard delete the roadmap
+    await Roadmap.findByIdAndDelete(req.params.id);
     // Also delete any progress records tied to this roadmap for all users
     try {
       const deleteResult = await Progress.deleteMany({ roadmap: req.params.id });
@@ -229,7 +224,7 @@ router.delete("/:id", requireAuth, async (req, res) => {
       console.warn("Warning: failed to cleanup progress records:", cleanupErr.message);
     }
     
-    console.log(`✅ Roadmap soft deleted: ${roadmap.title}`);
+    console.log(`✅ Roadmap hard deleted: ${roadmap.title}`);
     res.json({ 
       message: "Roadmap deleted successfully",
       roadmapId: req.params.id,
@@ -267,12 +262,7 @@ router.get("/user/accessible", requireAuth, async (req, res) => {
   try {
     console.log(`📋 Fetching accessible roadmaps for user: ${req.auth.userId}`);
     
-    const roadmaps = await Roadmap.find({
-      $or: [
-        { visibility: 'public', isActive: true },
-        { createdBy: req.auth.userId, isActive: true }
-      ]
-    }).sort({ createdAt: -1 });
+    const roadmaps = await Roadmap.find({ isActive: true }).sort({ createdAt: -1 });
     
     console.log(`✅ Found ${roadmaps.length} accessible roadmaps for user`);
     res.json(roadmaps);
@@ -290,8 +280,7 @@ router.get("/category/:category", async (req, res) => {
     
     const roadmaps = await Roadmap.find({ 
       category: { $regex: new RegExp(category, 'i') },
-      isActive: true,
-      visibility: 'public'
+      isActive: true
     }).sort({ createdAt: -1 }).lean();
     
     console.log(`✅ Found ${roadmaps.length} public roadmaps in category: ${category}`);
@@ -313,7 +302,6 @@ router.get("/search/:query", async (req, res) => {
     
     const roadmaps = await Roadmap.find({
       isActive: true,
-      visibility: 'public',
       $or: [
         { title: { $regex: query, $options: 'i' } },
         { description: { $regex: query, $options: 'i' } },

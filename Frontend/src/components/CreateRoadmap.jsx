@@ -153,7 +153,6 @@ export default function CreateRoadmap() {
     title: "",
     description: "",
     category: "",
-    visibility: "public",
     tags: [],
     steps: [{ title: "", description: "", resources: [] }]
   });
@@ -221,7 +220,6 @@ export default function CreateRoadmap() {
         title: formData.title.trim(),
         description: formData.description.trim(),
         category: formData.category,
-        visibility: formData.visibility,
         tags: formData.tags.filter(tag => tag.trim().length > 0),
         steps: formData.steps.map(s => ({
           title: s.title.trim(),
@@ -304,47 +302,7 @@ export default function CreateRoadmap() {
                 {categories.map(c => <option key={c} value={c}>{c}</option>)}
               </select>
               
-              {/* Visibility Selection */}
-              <div>
-                <label className="block text-sm font-medium text-slate-300 mb-3">Visibility</label>
-                <div className="grid grid-cols-2 gap-3">
-                  <button
-                    type="button"
-                    onClick={() => handleInputChange("visibility", "public")}
-                    className={`p-4 rounded-lg border-2 transition-all duration-200 ${
-                      formData.visibility === "public"
-                        ? "border-blue-500 bg-blue-500/10 text-blue-300"
-                        : "border-slate-600 bg-slate-700 text-slate-300 hover:border-slate-500"
-                    }`}
-                  >
-                    <div className="flex items-center space-x-2">
-                      <Globe className="h-5 w-5" />
-                      <div className="text-left">
-                        <div className="font-medium">Public</div>
-                        <div className="text-xs opacity-75">Anyone can view</div>
-                      </div>
-                    </div>
-                  </button>
-                  
-                  <button
-                    type="button"
-                    onClick={() => handleInputChange("visibility", "private")}
-                    className={`p-4 rounded-lg border-2 transition-all duration-200 ${
-                      formData.visibility === "private"
-                        ? "border-purple-500 bg-purple-500/10 text-purple-300"
-                        : "border-slate-600 bg-slate-700 text-slate-300 hover:border-slate-500"
-                    }`}
-                  >
-                    <div className="flex items-center space-x-2">
-                      <Lock className="h-5 w-5" />
-                      <div className="text-left">
-                        <div className="font-medium">Private</div>
-                        <div className="text-xs opacity-75">Only you can view</div>
-                      </div>
-                    </div>
-                  </button>
-                </div>
-              </div>
+              {/* Visibility removed: All roadmaps are public */}
             </CardContent>
           </Card>
 

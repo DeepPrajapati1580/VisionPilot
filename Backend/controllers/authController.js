@@ -14,8 +14,8 @@ export const registerUser = async (req, res) => {
     
     console.log("📝 Registering user:", { userId, email, name, role });
 
-    // Validate role
-    const validRoles = ['viewer', 'editor', 'admin'];
+    // Validate role (only viewer and admin are supported)
+    const validRoles = ['viewer', 'admin'];
     if (!validRoles.includes(role)) {
       return res.status(400).json({
         error: "Invalid role specified",

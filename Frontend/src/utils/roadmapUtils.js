@@ -67,9 +67,7 @@ export const validateRoadmapData = (data) => {
     errors.push("Category is required");
   }
 
-  if (!data.visibility || !['public', 'private'].includes(data.visibility)) {
-    errors.push("Visibility must be either 'public' or 'private'");
-  }
+  // Visibility removed: all roadmaps are public
 
   if (!data.steps || data.steps.length === 0) {
     errors.push("At least one step is required");

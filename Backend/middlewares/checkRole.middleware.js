@@ -68,5 +68,6 @@ export const checkRole = (allowedRoles) => {
 };
 
 export const isAdmin = checkRole(['admin']);
-export const isEditorOrAdmin = checkRole(['editor', 'admin']);
-export const isAnyRole = checkRole(['viewer', 'editor', 'admin']);
+// With only viewer and admin roles, editor role is not applicable
+export const isEditorOrAdmin = checkRole(['admin']);
+export const isAnyRole = checkRole(['viewer', 'admin']);

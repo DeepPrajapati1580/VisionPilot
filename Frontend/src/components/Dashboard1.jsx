@@ -51,18 +51,6 @@ function RoadmapCard({ roadmap, progress, index, isOwned = false }) {
               <Edit className="h-3 w-3 mr-1" />
               Created by you
             </Badge>
-            <Badge className={`text-xs ${
-              roadmap.visibility === 'public' 
-                ? 'bg-blue-900/30 text-blue-300 border-blue-700' 
-                : 'bg-purple-900/30 text-purple-300 border-purple-700'
-            }`}>
-              {roadmap.visibility === 'public' ? (
-                <Globe className="h-3 w-3 mr-1" />
-              ) : (
-                <Lock className="h-3 w-3 mr-1" />
-              )}
-              {roadmap.visibility === 'public' ? 'Public' : 'Private'}
-            </Badge>
           </div>
         )}
         

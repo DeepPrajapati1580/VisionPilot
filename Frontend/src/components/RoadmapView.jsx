@@ -14,69 +14,101 @@ import api from "../api";
 
 // Step Component
 function RoadmapStep({ step, index, isCompleted, onToggleComplete, canEdit = false }) {
+  const [open, setOpen] = useState(false);
+  const [tilt, setTilt] = useState({ x: 0, y: 0 });
+
+  const maxRotate = 6; // degrees
+
+  const handleMove = (e) => {
+    const rect = e.currentTarget.getBoundingClientRect();
+    const x = e.clientX - rect.left;
+    const y = e.clientY - rect.top;
+    const px = (x / rect.width) - 0.5;
+    const py = (y / rect.height) - 0.5;
+    setTilt({ x: -(py * maxRotate), y: px * maxRotate });
+  };
+
+  const handleLeave = () => setTilt({ x: 0, y: 0 });
+
   return (
     <motion.div
       initial={{ opacity: 0, x: -20 }}
       animate={{ opacity: 1, x: 0 }}
-      transition={{ duration: 0.5, delay: index * 0.1 }}
-      className={`bg-slate-800 rounded-lg p-6 border-l-4 transition-all duration-300 ${
-        isCompleted 
-          ? 'border-green-500 shadow-lg' 
-          : 'border-slate-600 hover:border-blue-400'
-      }`}
+      transition={{ duration: 0.4, delay: index * 0.05 }}
+      className="relative pl-10"
+      style={{ transformStyle: 'preserve-3d' }}
     >
-      <div className="flex items-start space-x-4">
-        <div className="flex-shrink-0">
-          <button
-            onClick={() => canEdit && onToggleComplete(index)}
-            disabled={!canEdit}
-            className={`w-8 h-8 rounded-full flex items-center justify-center text-white font-medium transition-all duration-200 ${
-              isCompleted 
-                ? 'bg-green-500 hover:bg-green-600' 
-                : 'bg-slate-600 hover:bg-blue-500'
-            } ${canEdit ? 'cursor-pointer' : 'cursor-default'}`}
-          >
-            {isCompleted ? <CheckCircle className="h-5 w-5" /> : index + 1}
-          </button>
-        </div>
-        
-        <div className="flex-1">
-          <h3 className={`text-lg font-semibold mb-2 ${
-            isCompleted 
-              ? 'text-green-300' 
-              : 'text-white'
-          }`}>
-            {step.title}
-          </h3>
-          
-          {step.description && (
-            <p className="text-slate-400 mb-4 leading-relaxed">
-              {step.description}
-            </p>
-          )}
-          
-          {step.resources && step.resources.length > 0 && (
-            <div className="space-y-2">
-              <h4 className="text-sm font-medium text-slate-300 mb-2">
-                Resources:
-              </h4>
-              <div className="flex flex-wrap gap-2">
-                {step.resources.map((resource, resourceIndex) => (
-                  <a
-                    key={resourceIndex}
-                    href={resource}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="inline-flex items-center px-3 py-1 bg-blue-900/30 text-blue-400 rounded-full text-sm hover:bg-blue-900/50 transition-colors"
-                  >
-                    <ExternalLink className="h-3 w-3 mr-1" />
-                    Resource {resourceIndex + 1}
-                  </a>
-                ))}
+      {/* timeline node */}
+      <div
+        className="absolute left-0 top-2 w-6 h-6 rounded-full bg-gradient-to-br from-blue-600 to-indigo-600 border border-slate-600 flex items-center justify-center text-[11px] text-white shadow-md"
+        style={{ transform: 'translateZ(40px)' }}
+      >
+        {index + 1}
+      </div>
+      <div className="absolute left-3 top-8 bottom-0 w-px bg-slate-700" />
+
+      {/* glow */}
+      <div className="absolute -inset-0.5 rounded-xl bg-gradient-to-r from-blue-500/10 to-purple-500/10 blur-md" aria-hidden />
+
+      <div
+        onMouseMove={handleMove}
+        onMouseLeave={handleLeave}
+        className={`relative rounded-xl border ${open ? 'border-blue-500/60' : 'border-slate-700'} bg-slate-900/60 hover:bg-slate-900 transition-colors shadow-lg`}
+        style={{
+          transformStyle: 'preserve-3d',
+          transform: `rotateX(${tilt.x}deg) rotateY(${tilt.y}deg)`,
+          willChange: 'transform'
+        }}
+      >
+        <button
+          onClick={() => setOpen((v) => !v)}
+          className="w-full text-left p-4 flex items-center justify-between"
+          style={{ transform: 'translateZ(10px)' }}
+        >
+          <div className="flex items-center gap-3">
+            <button
+              onClick={(e) => { e.stopPropagation(); canEdit && onToggleComplete(index); }}
+              disabled={!canEdit}
+              className={`w-8 h-8 rounded-full flex items-center justify-center text-white text-[12px] ${isCompleted ? 'bg-green-600' : 'bg-slate-600'} ${canEdit ? '' : 'opacity-60 cursor-default'}`}
+              title={isCompleted ? 'Mark as incomplete' : 'Mark as complete'}
+              style={{ transform: 'translateZ(20px)' }}
+            >
+              {isCompleted ? <CheckCircle className="h-4 w-4" /> : index + 1}
+            </button>
+            <span className={`font-semibold ${isCompleted ? 'text-green-300' : 'text-white'}`} style={{ transform: 'translateZ(18px)' }}>
+              {step.title}
+            </span>
+          </div>
+          <span className="text-slate-400 text-sm" style={{ transform: 'translateZ(12px)' }}>{open ? 'Hide' : 'Show'}</span>
+        </button>
+
+        {open && (
+          <div className="px-4 pb-4" style={{ transform: 'translateZ(14px)' }}>
+            {step.description && (
+              <p className="text-slate-300 leading-relaxed mb-3">{step.description}</p>
+            )}
+            {step.resources?.length > 0 && (
+              <div className="mt-2">
+                <div className="text-sm font-medium text-slate-300 mb-2">Resources</div>
+                <div className="flex flex-wrap gap-2">
+                  {step.resources.map((res, i) => (
+                    <a
+                      key={i}
+                      href={res}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="inline-flex items-center px-2.5 py-1 rounded-full text-xs bg-blue-900/30 text-blue-300 border border-blue-800 hover:bg-blue-900/50"
+                      style={{ transform: 'translateZ(16px)' }}
+                    >
+                      <ExternalLink className="h-3 w-3 mr-1" />
+                      Resource {i + 1}
+                    </a>
+                  ))}
+                </div>
               </div>
-            </div>
-          )}
-        </div>
+            )}
+          </div>
+        )}
       </div>
     </motion.div>
   );
@@ -296,14 +328,7 @@ export default function RoadmapView() {
                 <Badge className="bg-blue-900/30 text-blue-300 border-blue-700">
                   {roadmap.category}
                 </Badge>
-                <div className="flex items-center text-slate-400 text-sm">
-                  {roadmap.visibility === 'public' ? (
-                    <Globe className="h-4 w-4 mr-1" />
-                  ) : (
-                    <Lock className="h-4 w-4 mr-1" />
-                  )}
-                  {roadmap.visibility === 'public' ? 'Public' : 'Private'}
-                </div>
+                {/* Visibility removed: all roadmaps are public */}
                 <div className="flex items-center text-slate-400 text-sm">
                   <Users className="h-4 w-4 mr-1" />
                   {Math.floor(Math.random() * 1000) + 100}+ learners
@@ -409,7 +434,7 @@ export default function RoadmapView() {
             Learning Path
           </h2>
           
-          <div className="space-y-6">
+          <div className="space-y-3" style={{ perspective: '1000px' }}>
             {roadmap.steps?.map((step, index) => (
               <div key={index} id={`step-${index}`}>
                 <RoadmapStep

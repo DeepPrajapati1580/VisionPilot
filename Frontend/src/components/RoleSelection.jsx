@@ -1,7 +1,7 @@
 // src/components/RoleSelection.jsx
 import React, { useState } from "react";
 import { motion } from "framer-motion";
-import { User, Shield, Eye, CheckCircle, ArrowRight, Crown, Edit } from 'lucide-react';
+import { Eye, CheckCircle, ArrowRight, Crown } from 'lucide-react';
 import { Button } from "./UI/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "./UI/card";
 import { Badge } from "./UI/badge";
@@ -22,20 +22,7 @@ const roles = [
     ],
     recommended: true
   },
-  {
-    id: "editor",
-    title: "Content Creator",
-    description: "Create, edit, and manage roadmaps and educational content",
-    icon: <Edit className="h-8 w-8" />,
-    color: "from-blue-500 to-blue-600",
-    permissions: [
-      "Create and edit roadmaps",
-      "Manage learning content",
-      "Community interaction",
-      "Progress tracking",
-      "Content collaboration"
-    ]
-  },
+  // Editor role removed; only viewer and admin roles are available
   {
     id: "admin",
     title: "Administrator",

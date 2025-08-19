@@ -190,13 +190,13 @@ export default function PublicHome() {
                 </Button>
               </SignInButton>
               <SignInButton mode="modal" afterSignInUrl="/dashboard" afterSignUpUrl="/dashboard">
-                <Button 
-                  size="lg" 
-                  variant="outline" 
-                  className="border-slate-600 text-slate-300 hover:bg-slate-800 hover:text-white text-lg px-8 py-4"
-                >
-                  Explore Roadmaps
-                </Button>
+              <Button 
+                size="lg" 
+                variant="outline" 
+                className="border-slate-600 text-slate-300 hover:bg-slate-800 hover:text-white text-lg px-8 py-4"
+              >
+                Explore Roadmaps
+              </Button>
               </SignInButton>
             </div>
 
