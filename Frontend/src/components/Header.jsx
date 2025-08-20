@@ -1,17 +1,19 @@
 import React from "react";
 import { useNavigate } from "react-router-dom";
 import { useUser, SignInButton, UserButton } from "@clerk/clerk-react";
-import { Code, ArrowRight, Plus } from 'lucide-react';
+import { Code, Plus } from 'lucide-react';
 import { Button } from "./UI/button";
 
 export default function Header() {
-  const { isSignedIn, user } = useUser();
+  const { isSignedIn } = useUser();
   const navigate = useNavigate();
 
   return (
     <header className="bg-slate-900/80 backdrop-blur-sm border-b border-slate-800 sticky top-0 z-50">
       <div className="container mx-auto px-4 py-4">
         <div className="flex items-center justify-between">
+          
+          {/* Logo + Home */}
           <div className="flex items-center space-x-2 cursor-pointer" onClick={() => navigate('/')}>
             <div className="w-8 h-8 bg-gradient-to-r from-blue-500 to-purple-600 rounded-lg flex items-center justify-center">
               <Code className="h-5 w-5 text-white" />
@@ -19,6 +21,7 @@ export default function Header() {
             <h1 className="text-xl font-bold text-white">VisionPilot</h1>
           </div>
           
+          {/* Navigation */}
           <nav className="hidden md:flex items-center space-x-6">
             <button 
               onClick={() => navigate('/')}
@@ -26,32 +29,34 @@ export default function Header() {
             >
               Home
             </button>
-            <button 
-              onClick={() => navigate('/dashboard')}
-              className="text-slate-400 hover:text-white transition-colors"
-            >
-              Roadmaps
-            </button>
-            {/* {isSignedIn && (
-              <button 
-                onClick={() => navigate('/create-roadmap')}
-                className="text-slate-400 hover:text-white transition-colors"
-              >
-                Create
-              </button>
-            )} */}
-            <button 
-            onClick={() => navigate('/gemini')}
-            className="text-slate-400 hover:text-white transition-colors">
-              AI Chat
-            </button>
+
+            {/* Only show Roadmaps & AI Chat if signed in */}
+            {isSignedIn && (
+              <>
+                <button 
+                  onClick={() => navigate('/dashboard')}
+                  className="text-slate-400 hover:text-white transition-colors"
+                >
+                  Roadmaps
+                </button>
+                <button 
+                  onClick={() => navigate('/gemini')}
+                  className="text-slate-400 hover:text-white transition-colors"
+                >
+                  AI Chat
+                </button>
+              </>
+            )}
+
             <button 
               onClick={() => navigate('/about')}
-            className="text-slate-400 hover:text-white transition-colors">
+              className="text-slate-400 hover:text-white transition-colors"
+            >
               About Us
             </button>
           </nav>
 
+          {/* Right-side Auth / User Actions */}
           <div className="flex items-center space-x-4">
             {isSignedIn ? (
               <>
