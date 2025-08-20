@@ -9,6 +9,7 @@ import Login from "./components/Login";
 import Register from "./components/Register";
 import About from "./components/About";
 import GeminiChat from "./components/GeminiChat";
+import Goals from "./components/Goals";
 
 function App() {
   const { isSignedIn } = useUser();
@@ -24,6 +25,7 @@ function App() {
       <Route path="/about" element={<About/>}/>
       <Route path="/dashboard" element={isSignedIn ? <Dashboard /> : <Home />} />
       <Route path="/gemini" element={<GeminiChat />} />
+      <Route path="/Goals" element={<Goals />} />
     </Routes>
   );
 }
