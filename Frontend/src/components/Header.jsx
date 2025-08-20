@@ -32,14 +32,14 @@ export default function Header() {
             >
               Roadmaps
             </button>
-            {isSignedIn && (
+            {/* {isSignedIn && (
               <button 
                 onClick={() => navigate('/create-roadmap')}
                 className="text-slate-400 hover:text-white transition-colors"
               >
                 Create
               </button>
-            )}
+            )} */}
             <button 
             onClick={() => navigate('/gemini')}
             className="text-slate-400 hover:text-white transition-colors">

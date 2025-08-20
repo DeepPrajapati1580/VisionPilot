@@ -22,7 +22,6 @@ const roles = [
     ],
     recommended: true
   },
-  // Editor role removed; only viewer and admin roles are available
   {
     id: "admin",
     title: "Administrator",
