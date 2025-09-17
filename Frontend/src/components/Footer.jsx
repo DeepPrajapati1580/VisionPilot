@@ -1,6 +1,6 @@
 "use client"
 
-import { Map, Github, Twitter, Linkedin, Mail, ArrowUp } from "lucide-react"
+import { Map, Github, Linkedin, Mail, ArrowUp } from "lucide-react"
 import { Button } from "./UI/button"
 
 export default function Footer() {
@@ -8,66 +8,12 @@ export default function Footer() {
     window.scrollTo({ top: 0, behavior: "smooth" })
   }
 
-  const footerSections = {
-    platform: {
-      title: "Platform",
-      links: [
-        { name: "Features", href: "#features" },
-        { name: "Roadmap Builder", href: "#roadmap-builder" },
-        { name: "Team Collaboration", href: "#team" },
-        { name: "Milestone Tracking", href: "#milestones" },
-        { name: "Integrations", href: "#integrations" },
-        { name: "Pricing", href: "#pricing" },
-      ],
-    },
-    solutions: {
-      title: "Solutions",
-      links: [
-        { name: "For Project Managers", href: "#project-managers" },
-        { name: "For Teams", href: "#teams" },
-        { name: "For Enterprises", href: "#enterprise" },
-        { name: "For Freelancers", href: "#freelancers" },
-        { name: "Education & Learning", href: "#education" },
-        { name: "Product Development", href: "#product-dev" },
-      ],
-    },
-    resources: {
-      title: "Resources",
-      links: [
-        { name: "Documentation", href: "#docs" },
-        { name: "API Reference", href: "#api-docs" },
-        { name: "Tutorials", href: "#tutorials" },
-        { name: "Blog", href: "#blog" },
-        { name: "Case Studies", href: "#case-studies" },
-        { name: "Webinars", href: "#webinars" },
-      ],
-    },
-    support: {
-      title: "Support",
-      links: [
-        { name: "Help Center", href: "#help" },
-        { name: "Contact Us", href: "#contact" },
-        { name: "Community Forum", href: "#community" },
-        { name: "System Status", href: "#status" },
-        { name: "Report a Bug", href: "#bugs" },
-        { name: "Request a Feature", href: "#features" },
-      ],
-    },
-    company: {
-      title: "Company",
-      links: [
-        { name: "About Us", href: "#about" },
-        { name: "Careers", href: "#careers" },
-        { name: "Press Kit", href: "#press" },
-        { name: "Partners", href: "#partners" },
-        { name: "Privacy Policy", href: "#privacy" },
-        { name: "Terms of Service", href: "#terms" },
-      ],
-    },
-  }
-
   const socialLinks = [
-    { name: "LinkedIn", icon: <Linkedin className="h-5 w-5" />, href: "https://www.linkedin.com/in/deep-prajapati-92673a2b3?utm_source=share&utm_campaign=share_via&utm_content=profile&utm_medium=android_app" },
+    {
+      name: "LinkedIn",
+      icon: <Linkedin className="h-5 w-5" />,
+      href: "https://www.linkedin.com/in/deep-prajapati-92673a2b3?utm_source=share&utm_campaign=share_via&utm_content=profile&utm_medium=android_app",
+    },
     { name: "GitHub", icon: <Github className="h-5 w-5" />, href: "https://github.com/DeepPrajapati1580" },
     { name: "Email", icon: <Mail className="h-5 w-5" />, href: "mailto:23ceuog126@ddu.ac.in" },
   ]
@@ -75,7 +21,7 @@ export default function Footer() {
   return (
     <footer className="bg-slate-900 dark:bg-slate-950 text-white transition-colors duration-300">
       {/* Main Footer Content */}
-      <div className="container mx-auto px-4 py-12">
+      <div className="container mx-auto px-4 py-4">
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-6 gap-8">
           {/* Company Info */}
           <div className="lg:col-span-2">
@@ -89,11 +35,6 @@ export default function Footer() {
                 <p className="text-sm text-gray-400">Plan. Track. Achieve.</p>
               </div>
             </div>
-
-            <p className="text-gray-400 text-sm mb-6 leading-relaxed">
-              RoadmapPro helps teams and individuals create clear, actionable roadmaps. Track milestones, assign tasks,
-              and collaborate effortlessly — all in one platform designed to keep projects on track.
-            </p>
 
             {/* Social Links */}
             <div className="flex space-x-4">
@@ -110,46 +51,22 @@ export default function Footer() {
             </div>
           </div>
 
-          {/* Footer Links */}
-          {Object.entries(footerSections).map(([key, section]) => (
-            <div key={key}>
-              <h4 className="font-semibold text-white mb-4">{section.title}</h4>
-              <ul className="space-y-3">
-                {section.links.map((link) => (
-                  <li key={link.name}>
-                    <a
-                      href={link.href}
-                      className="text-gray-400 hover:text-white transition-colors duration-200 text-sm"
-                    >
-                      {link.name}
-                    </a>
-                  </li>
-                ))}
-              </ul>
-            </div>
-          ))}
+          {/* Full width description */}
+          <div className="lg:col-span-6">
+            <p className="text-gray-400 text-sm mb-6 leading-relaxed">
+              RoadmapPro helps teams and individuals create clear, actionable roadmaps. Track milestones, assign tasks,
+              and collaborate effortlessly — all in one platform designed to keep projects on track.
+            </p>
+          </div>
         </div>
-
-       
       </div>
 
       {/* Bottom Bar */}
       <div className="border-t border-gray-800">
-        <div className="container mx-auto px-4 py-6">
+        <div className="container mx-auto px-4 py-4">
           <div className="flex flex-col md:flex-row justify-between items-center space-y-4 md:space-y-0">
             <div className="flex flex-col md:flex-row items-center space-y-2 md:space-y-0 md:space-x-6 text-sm text-gray-400">
               <p>&copy; 2025 RoadmapPro. All rights reserved.</p>
-              <div className="flex space-x-4">
-                <a href="#privacy" className="hover:text-white transition-colors">
-                  Privacy
-                </a>
-                <a href="#terms" className="hover:text-white transition-colors">
-                  Terms
-                </a>
-                <a href="#cookies" className="hover:text-white transition-colors">
-                  Cookies
-                </a>
-              </div>
             </div>
 
             {/* Back to Top */}
@@ -165,7 +82,6 @@ export default function Footer() {
           </div>
         </div>
       </div>
-
     </footer>
   )
 }

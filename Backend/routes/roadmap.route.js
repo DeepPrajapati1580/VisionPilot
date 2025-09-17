@@ -60,7 +60,7 @@ router.post("/", requireAuth, async (req, res) => {
   }
 });
 
-// GET all roadmaps (public only)
+// GET all roadmaps 
 router.get("/", async (req, res) => {
   try {
     console.log("📋 Fetching all public roadmaps...");
@@ -77,7 +77,7 @@ router.get("/", async (req, res) => {
   }
 });
 
-// GET single roadmap by ID (public or private if owner)
+// GET single roadmap by ID
 router.get("/:id", async (req, res) => {
   try {
     console.log(`📋 Fetching roadmap with ID: ${req.params.id}`);
@@ -87,8 +87,6 @@ router.get("/:id", async (req, res) => {
       console.log("❌ Roadmap not found");
       return res.status(404).json({ error: "Roadmap not found" });
     }
-
-    // All roadmaps are public now; no visibility check
     
     console.log(`✅ Found roadmap: ${roadmap.title}`);
     res.json(roadmap);
@@ -239,7 +237,7 @@ router.delete("/:id", requireAuth, async (req, res) => {
   }
 });
 
-// GET user's created roadmaps (protected route - both public and private)
+// GET user's created roadmaps
 router.get("/user/created", requireAuth, async (req, res) => {
   try {
     console.log(`📋 Fetching roadmaps created by user: ${req.auth.userId}`);
@@ -257,7 +255,7 @@ router.get("/user/created", requireAuth, async (req, res) => {
   }
 });
 
-// GET all roadmaps accessible to user (public + user's private)
+// GET all roadmaps accessible to user
 router.get("/user/accessible", requireAuth, async (req, res) => {
   try {
     console.log(`📋 Fetching accessible roadmaps for user: ${req.auth.userId}`);
@@ -272,7 +270,7 @@ router.get("/user/accessible", requireAuth, async (req, res) => {
   }
 });
 
-// GET roadmaps by category (public only)
+// GET roadmaps by category 
 router.get("/category/:category", async (req, res) => {
   try {
     const category = req.params.category;
@@ -294,7 +292,7 @@ router.get("/category/:category", async (req, res) => {
   }
 });
 
-// GET roadmaps with search functionality (public only)
+// GET roadmaps with search functionality 
 router.get("/search/:query", async (req, res) => {
   try {
     const query = req.params.query;

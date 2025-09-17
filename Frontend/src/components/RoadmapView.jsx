@@ -202,7 +202,7 @@ export default function RoadmapView() {
             const progressResponse = await api.get(`/progress/roadmap/${id}`);
             setUserProgress(progressResponse.data);
           } catch (progressError) {
-            // Progress might not exist yet, that's okay
+            // Progress might not exist yet
             console.log("No progress found for this roadmap");
           }
         }

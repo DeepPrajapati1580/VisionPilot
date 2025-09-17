@@ -7,9 +7,9 @@ import {
   CheckCircle2,
   Search,
 } from "lucide-react";
-import Header from "./Header"; // ✅ using your project's header file
+import Header from "./Header";
 
-// ✅ Inline Card & Badge (self-contained)
+// Inline Card & Badge (self-contained)
 function Card({ children, className }) {
   return <div className={`rounded-lg border p-4 ${className}`}>{children}</div>;
 }
