@@ -1,5 +1,4 @@
 import React, { useState, useRef } from "react";
-import { GoogleGenerativeAI } from "@google/generative-ai";
 import Header from "./Header";
 
 export default function GeminiRoadmapPresenter() {
@@ -9,9 +8,7 @@ export default function GeminiRoadmapPresenter() {
   const [showRaw, setShowRaw] = useState(false);
   const topRef = useRef(null);
 
-  const genAI = new GoogleGenerativeAI(import.meta.env.VITE_GOOGLE_API_KEY);
-  const model = genAI.getGenerativeModel({ model: "gemini-2.0-flash" }); 
-
+  // --- Utility functions ---
   function cleanJSON(raw) {
     if (!raw) return raw;
     const withoutFences = raw.replace(/```json|```/g, "");
@@ -20,7 +17,6 @@ export default function GeminiRoadmapPresenter() {
 
   function extractLikelyJSON(text) {
     if (!text) return text;
-    // Try to find the first balanced JSON block
     const start = text.indexOf("{");
     const end = text.lastIndexOf("}");
     if (start !== -1 && end !== -1 && end > start) {
@@ -33,35 +29,21 @@ export default function GeminiRoadmapPresenter() {
     if (!input.trim()) return;
     setLoading(true);
     try {
-      const prompt = `
-      Generate a roadmap in JSON format only.
-      Schema:
-      {
-        "title": "string",
-        "description": "string",
-        "category": "string",
-        "tags": ["string"],
-        "steps": [
-          { 
-            "title": "string", 
-            "description": "string",
-            "resources": ["string (should include clickable links when possible)"]
-          }
-        ]
-      }
-      Input: ${input}
-      `;
+      const res = await fetch(`${import.meta.env.VITE_API_URL}/gemini/roadmap`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ input }),
+      });
 
-      const result = await model.generateContent(prompt);
-
+      const data = await res.json();
       let parsed = null;
+
       try {
-        const raw = result.response.text();
-        const cleaned = cleanJSON(raw);
+        const cleaned = cleanJSON(data.response);
         const likely = extractLikelyJSON(cleaned);
         parsed = JSON.parse(likely);
       } catch (err) {
-        parsed = { error: "Invalid JSON returned", raw: result.response.text() };
+        parsed = { error: "Invalid JSON returned", raw: data.response };
       }
 
       setRoadmap(parsed);
@@ -91,11 +73,15 @@ export default function GeminiRoadmapPresenter() {
 
   function downloadJSON() {
     if (!roadmap) return;
-    const blob = new Blob([JSON.stringify(roadmap, null, 2)], { type: "application/json" });
+    const blob = new Blob([JSON.stringify(roadmap, null, 2)], {
+      type: "application/json",
+    });
     const url = URL.createObjectURL(blob);
     const a = document.createElement("a");
     a.href = url;
-    a.download = `${roadmap?.title?.toLowerCase()?.replace(/\s+/g, "-") || "roadmap"}.json`;
+    a.download = `${
+      roadmap?.title?.toLowerCase()?.replace(/\s+/g, "-") || "roadmap"
+    }.json`;
     document.body.appendChild(a);
     a.click();
     a.remove();
@@ -117,10 +103,10 @@ export default function GeminiRoadmapPresenter() {
     const httpMatch = candidateText.match(/https?:\/\/[^\s)]+/i);
     if (httpMatch) return httpMatch[0];
     if (/^www\./i.test(candidateText)) return `https://${candidateText}`;
-    if (/^[\w-]+(\.[\w-]+)+([\/#$?].*)?$/i.test(candidateText)) return `https://${candidateText}`;
+    if (/^[\w-]+(\.[\w-]+)+([\/#$?].*)?$/i.test(candidateText))
+      return `https://${candidateText}`;
     return undefined;
   }
-
   return (
     <div className="dark">
       <div className="min-h-screen bg-gray-950 transition-colors duration-300">

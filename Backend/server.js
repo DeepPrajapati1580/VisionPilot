@@ -2,10 +2,10 @@ import express from "express";
 import mongoose from "mongoose";
 import dotenv from "dotenv";
 import cors from "cors";
-import roadmapRoutes from "./routes/roadmap.route.js";
-import progressRoutes from "./routes/progress.route.js";
-import authRoutes from "./routes/auth.route.js";
-// Seeding removed; DB already contains initial data
+import roadmapRoutes from "./src/routes/roadmap.route.js";
+import progressRoutes from "./src/routes/progress.route.js";
+import authRoutes from "./src/routes/auth.route.js";
+import geminiRoadmap from "./src/routes/geminiRoadmap.js"; 
 
 dotenv.config();
 const app = express();
@@ -77,9 +77,9 @@ app.get("/api/health", async (req, res) => {
 
 // API Routes - All routes are essential for functionality
 app.use("/api/roadmaps", roadmapRoutes);
-// Categories API removed: categories are simple strings on roadmaps now
 app.use("/api/progress", progressRoutes);
 app.use("/api/auth", authRoutes);
+app.use("/api/gemini", geminiRoadmap);
 
 // Error handling middleware
 app.use((err, req, res, next) => {
