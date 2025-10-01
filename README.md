@@ -43,6 +43,21 @@ The project is organized into two major folders:
 
 ---
 
+## 🚀 Future Plans
+
+- 📂 Build a custom dataset combining:  
+  - OHLCV candlestick data  
+  - Technical indicators (RSI, MACD, EMA, etc.)  
+  - Financial ratios  
+  - News sentiments  
+
+- 🤖 Train **Deep Learning LSTM models** for:  
+  - Price prediction  
+  - Time series forecasting  
+  - Pattern recognition  
+
+---
+
 ## 📌 Installation & Setup  
 
 ### 1️⃣ Clone the repository  

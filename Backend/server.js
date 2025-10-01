@@ -2,6 +2,7 @@ import express from "express";
 import mongoose from "mongoose";
 import dotenv from "dotenv";
 import cors from "cors";
+import { ClerkExpressWithAuth } from '@clerk/clerk-sdk-node';
 import roadmapRoutes from "./src/routes/roadmap.route.js";
 import progressRoutes from "./src/routes/progress.route.js";
 import authRoutes from "./src/routes/auth.route.js";
@@ -12,33 +13,15 @@ const app = express();
 
 // Middleware
 app.use(express.json());
-const corsOptions = {
-  origin: (origin, callback) => {
-    // Allow requests with no origin (like mobile apps or curl)
-    if (!origin) return callback(null, true);
-    const allowed = [
-      'http://localhost:5173',
-      'http://127.0.0.1:5173',
-      'http://localhost:3000',
-      'http://127.0.0.1:3000',
-    ];
-    if (allowed.includes(origin)) return callback(null, true);
-    // In development, also allow 5174 (Vite alt) and 3001
-    if (process.env.NODE_ENV !== 'production' && (/^http:\/\/localhost:(517[0-9]|3001)$/.test(origin) || /^http:\/\/127\.0\.0\.1:(517[0-9]|3001)$/.test(origin))) {
-      return callback(null, true);
-    }
-    callback(new Error('Not allowed by CORS'));
-  },
-  credentials: true,
-  methods: ['GET','POST','PUT','PATCH','DELETE','OPTIONS'],
-  allowedHeaders: ['Content-Type','Authorization'],
-  exposedHeaders: [],
-  preflightContinue: false,
-  optionsSuccessStatus: 204
-};
-
-app.use(cors(corsOptions));
-// Note: cors middleware will handle preflight; explicit app.options removed to avoid path pattern issues in Express v5
+app.use(cors({
+  origin: [
+    "http://localhost:5173",
+    "http://127.0.0.1:5173",
+    "https://vision-pilot.vercel.app"
+  ],
+  methods: ["GET", "POST", "PUT", "DELETE"],
+  credentials: true
+}));
 
 // Request logging middleware (before routes)
 app.use((req, res, next) => {
@@ -76,6 +59,7 @@ app.get("/api/health", async (req, res) => {
 });
 
 // API Routes - All routes are essential for functionality
+app.use(ClerkExpressWithAuth());
 app.use("/api/roadmaps", roadmapRoutes);
 app.use("/api/progress", progressRoutes);
 app.use("/api/auth", authRoutes);
