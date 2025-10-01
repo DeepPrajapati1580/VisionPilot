@@ -45,6 +45,10 @@ The project is organized into two major folders:
 
 ## 🚀 Future Plans
 
+- 🤖 **AI auto-generation of roadmap steps**  
+- 📊 **Dashboard UI for visualization**  
+- 👥 **Collaboration & sharing**  
+- 📈 **Roadmap trend analysis**  
 ---
 
 ## 📌 Installation & Setup  
@@ -53,6 +57,7 @@ The project is organized into two major folders:
 ```bash
 git clone https://github.com/DeepPrajapati1580/VisionPilot.git
 cd VisionPilot-main
+```
 
 ### 2️⃣ Install dependencies
 
@@ -73,5 +78,4 @@ npm run dev
 
 ### 👨‍💻 Contributor
 
-Prajapati Deep(@Prajapati Deep
-) – Project Lead & SOC Analyst
+Prajapati Deep(@Prajapati Deep) – Project Lead & SOC Analyst
