@@ -109,7 +109,16 @@ app.use((req, res) => {
   });
 });
 
-// MongoDB Connection + Seeding
+// Start server
+const PORT = 5000;
+app.listen(PORT, () => {
+  console.log(`🚀 Server running on port ${PORT}`);
+  console.log(`📊 Health check: http://localhost:${PORT}/api/health`);
+  console.log(`📋 Roadmaps API: http://localhost:${PORT}/api/roadmaps`);
+});
+
+
+// MongoDB Connection 
 const connectDB = async () => {
   try {
     console.log("🔌 Connecting to MongoDB...");
@@ -157,14 +166,3 @@ process.on('SIGINT', async () => {
 
 // Initialize database connection
 connectDB();
-
-// Start server
-const PORT = process.env.PORT || 5000;
-app.listen(PORT, () => {
-  console.log(`🚀 Server running on port ${PORT}`);
-  console.log(`📊 Health check: http://localhost:${PORT}/api/health`);
-  console.log(`📋 Roadmaps API: http://localhost:${PORT}/api/roadmaps`);
-  console.log(`🌍 Environment: ${process.env.NODE_ENV || 'development'}`);
-});
-
-export default app;
